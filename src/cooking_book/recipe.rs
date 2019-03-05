@@ -82,18 +82,63 @@ impl Recipe {
     pub fn print_all_recipes_multi_line() {
         let all_recipes = persistency::load_recipes();
         for (name, recipe) in all_recipes {
-            crate::cooking_book::recipe::Recipe::print_recipe(name.as_str(), &recipe);
+            Recipe::print_recipe(name.as_str(), &recipe);
         }
+    }
+
+    fn get_recipes_by_name(name: &str) -> Vec<Recipe> {
+        let all_recipes = persistency::load_recipes();
+        let mut recipes: Vec<Recipe> = Vec::with_capacity(all_recipes.len());
+
+        for (_n, recipe) in all_recipes.into_iter().filter(|(k, _v)| k.contains(name)) {
+            recipes.push(recipe);
+        }
+
+        return recipes;
+    }
+
+    fn get_recipes_by_ingredients(ingredients: Vec<&str>) -> Vec<Recipe> {
+        let all_recipes = persistency::load_recipes();
+        let mut recipes: Vec<Recipe> = Vec::with_capacity(all_recipes.len());
+
+        for (_n, recipe) in all_recipes {
+            if recipe
+                .ingredients
+                .iter()
+                .find(|&(name, (_i, _a, _u))| ingredients.contains(&name.as_str()))
+                .is_none()
+            {
+                continue;
+            }
+
+            recipes.push(recipe);
+        }
+
+        return recipes;
+    }
+
+    fn get_recipes_by_tags(tags: Vec<String>) -> Vec<Recipe> {
+        let all_recipes = persistency::load_recipes();
+        let mut recipes: Vec<Recipe> = Vec::with_capacity(all_recipes.len());
+
+        let all_recipes: HashMap<String, Recipe> = persistency::load_recipes();
+        for (_n, recipe) in all_recipes {
+            for tag in &recipe.tags {
+                if tags.contains(&tag) {
+                    recipes.push(recipe);
+                    break;
+                }
+            }
+        }
+        return recipes;
     }
 
     pub fn print_recipes_by_name() {
         println!("Enter the name of the Recipe");
         let input = crate::read_from_stdin();
-        let input = input.as_str();
 
-        let all_recipes = persistency::load_recipes();
-        for (name, recipe) in all_recipes.into_iter().filter(|(k, _v)| k.contains(input)) {
-            crate::cooking_book::recipe::Recipe::print_recipe(name.as_str(), &recipe);
+        for recipe in Recipe::get_recipes_by_name(input.as_str()) {
+            Recipe::print_recipe(&recipe.name, &recipe);
         }
     }
 
@@ -103,49 +148,35 @@ impl Recipe {
         let input = input.as_str();
 
         let inputs: Vec<&str> = input.trim().split(',').collect();
-        let all_recipes: HashMap<String, Recipe> = persistency::load_recipes();
-        for (name, recipe) in all_recipes {
-            if recipe
-                .ingredients
-                .iter()
-                .find(|&(name, (_i, _a, _u))| inputs.contains(&name.as_str()))
-                .is_none()
-            {
-                continue;
-            }
-
-            crate::cooking_book::recipe::Recipe::print_recipe(name.as_str(), &recipe);
+        for recipe in Recipe::get_recipes_by_ingredients(inputs) {
+            Recipe::print_recipe(&recipe.name, &recipe);
         }
     }
 
-    pub fn print_recipes_by_tag() {
-        println!("Enter tags of Recipes to display:");
-        let input = crate::read_from_stdin();
-        let input = input.as_str();
-
-        let inputs = input.trim().split(',');
+    fn unify_tags(input: &str) -> Vec<String> {
         let mut tags: Vec<String> = Vec::new();
 
+        let inputs = input.trim().split(',');
         for i in inputs {
             if i.starts_with('#') {
                 tags.push(i.to_string());
-            }
-            else {
+            } else {
                 let mut tag = String::with_capacity(i.len() + 1);
                 tag.push('#');
                 tag.push_str(i);
                 tags.push(tag);
             }
         }
+        return tags;
+    }
 
-        let all_recipes: HashMap<String, Recipe> = persistency::load_recipes();
-        for (name, recipe) in all_recipes {
-            for tag in &recipe.tags {
-                if tags.contains(&tag) {
-                    crate::cooking_book::recipe::Recipe::print_recipe(name.as_str(), &recipe);
-                    break;
-                }
-            }
+    pub fn print_recipes_by_tag() {
+        println!("Enter tags of Recipes to display:");
+        let input = crate::read_from_stdin();
+        let tags = Recipe::unify_tags(input.as_str());
+
+        for recipe in Recipe::get_recipes_by_tags(tags) {
+            Recipe::print_recipe(&recipe.name, &recipe);
         }
     }
 }
