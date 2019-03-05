@@ -5,7 +5,7 @@ use std::collections::HashMap;
 
 pub struct Recipe {
     pub name: String,
-    pub ingredients: Vec<(Ingredient, u16, String)>,
+    pub ingredients: HashMap<String, (Ingredient, u16, String)>,
 }
 
 impl Recipe {
@@ -14,7 +14,7 @@ impl Recipe {
         let name = String::from(values.next().unwrap());
 
         let mut all_ingredients = persistency::load_ingredients();
-        let mut ingredients: Vec<(Ingredient, u16, String)> = Vec::new();
+        let mut ingredients: HashMap<String, (Ingredient, u16, String)> = HashMap::new();
 
         for s in values {
             let mut ingre_amount = s.split(',');
@@ -44,7 +44,7 @@ impl Recipe {
                 all_ingredients.insert(String::from(name), new_ingredient.clone());
             }
 
-            ingredients.push((
+            ingredients.insert(name.to_string(), (
                 all_ingredients.get(name).unwrap().clone(),
                 amount,
                 String::from(unit),
@@ -58,9 +58,10 @@ impl Recipe {
         let all_recipes = persistency::load_recipes();
         for (name, recipe) in all_recipes {
             println!("{}", name);
-            for (ingredient, amount, unit) in recipe.ingredients {
-                println!("\t{}: {} {}", ingredient.name, amount, unit);
+            for (name, (_i, amount, unit)) in recipe.ingredients {
+                println!("\t{}: {} {}", name, amount, unit);
             }
+            println!();
         }
     }
 
@@ -72,9 +73,10 @@ impl Recipe {
         let all_recipes = persistency::load_recipes();
         for (name, recipe) in all_recipes.into_iter().filter(|(k, _v)| k.contains(input)) {
             println!("{}", name);
-            for (ingredient, amount, unit) in recipe.ingredients {
-                println!("\t{}: {} {}", ingredient.name, amount, unit);
+            for (name, (_i, amount, unit)) in recipe.ingredients {
+                println!("\t{}: {} {}", name, amount, unit);
             }
+            println!();
         }
     }
 
@@ -89,15 +91,15 @@ impl Recipe {
             if recipe
                 .ingredients
                 .iter()
-                .find(|&(i, _a, _u)| inputs.contains(&i.name.as_str()))
+                .find(|&(name, (_i, _a, _u))| inputs.contains(&name.as_str()))
                 .is_none()
             {
                 continue;
             }
 
             println!("{}", name);
-            for (ingredient, amount, unit) in recipe.ingredients {
-                println!("\t{}: {} {}", ingredient.name, amount, unit);
+            for (name, (_i, amount, unit)) in recipe.ingredients {
+                println!("\t{}: {} {}", name, amount, unit);
             }
         }
     }
