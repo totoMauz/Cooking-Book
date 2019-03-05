@@ -1,0 +1,7 @@
+[package]
+name = "rezept"
+version = "0.1.0"
+authors = ["Toto <torsten.quast1@gmail.com>"]
+edition = "2018"
+
+[dependencies]
