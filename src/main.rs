@@ -51,6 +51,7 @@ fn main() {
                     "1" => Recipe::print_all_recipes_multi_line(),
                     "2" => Recipe::print_recipes_by_name(),
                     "3" => Recipe::print_recipes_by_used_ingredient(),
+                    "4" => Recipe::print_recipes_by_tag(),
                     &_ => continue,
                 }
             },
@@ -83,5 +84,6 @@ fn print_menu_recipes() {
     println!("1: Show all Recipes");
     println!("2: Show Recipes by Name");
     println!("3: Show Recipes by Ingredient");
+    println!("4: Show Recipes by Tag");
     println!("-------------------");
 }

@@ -49,7 +49,7 @@ impl Ingredient {
                 all_ingredients.remove(position);
                 persistency::write_all_ingredients(all_ingredients);
             }
-            None => eprintln!("Couldn't find ingredient {}", input),
+            None => eprintln!("Couldn't find Ingredient {}", input),
         }
     }
 
