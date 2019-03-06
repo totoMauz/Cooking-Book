@@ -4,6 +4,7 @@ use crate::file_access::persistency;
 use std::collections::HashMap;
 use std::collections::HashSet;
 
+#[derive(PartialEq, Eq)]
 pub struct Recipe {
     pub name: String,
     pub ingredients: HashMap<String, (Ingredient, u16, String)>,
@@ -86,58 +87,63 @@ impl Recipe {
         }
     }
 
-    fn get_recipes_by_name(name: &str) -> Vec<Recipe> {
-        let all_recipes = persistency::load_recipes();
-        let mut recipes: Vec<Recipe> = Vec::with_capacity(all_recipes.len());
+    fn get_recipes_by_name<'a>(
+        recipes: &'a HashMap<String, Recipe>,
+        name: &str,
+    ) -> Vec<&'a Recipe> {
+        let mut recipes_by_name: Vec<&'a Recipe> = Vec::with_capacity(recipes.len());
 
-        for (_n, recipe) in all_recipes.into_iter().filter(|(k, _v)| k.contains(name)) {
-            recipes.push(recipe);
+        for (_n, recipe) in recipes.iter().filter(|(k, _v)| k.contains(name)) {
+            recipes_by_name.push(recipe);
         }
 
-        return recipes;
+        return recipes_by_name;
     }
 
-    fn get_recipes_by_ingredients(ingredients: Vec<&str>) -> Vec<Recipe> {
-        let all_recipes = persistency::load_recipes();
-        let mut recipes: Vec<Recipe> = Vec::with_capacity(all_recipes.len());
+    fn get_recipes_by_ingredients<'a>(
+        recipes: &'a HashMap<String, Recipe>,
+        ingredient_names: Vec<&str>,
+    ) -> Vec<&'a Recipe> {
+        let mut recipes_by_ingredient: Vec<&Recipe> = Vec::with_capacity(recipes.len());
 
-        for (_n, recipe) in all_recipes {
+        for (_n, recipe) in recipes {
             if recipe
                 .ingredients
                 .iter()
-                .find(|&(name, (_i, _a, _u))| ingredients.contains(&name.as_str()))
+                .find(|&(name, (_i, _a, _u))| ingredient_names.contains(&name.as_str()))
                 .is_none()
             {
                 continue;
             }
 
-            recipes.push(recipe);
+            recipes_by_ingredient.push(recipe);
         }
 
-        return recipes;
+        return recipes_by_ingredient;
     }
 
-    fn get_recipes_by_tags(tags: Vec<String>) -> Vec<Recipe> {
-        let all_recipes = persistency::load_recipes();
-        let mut recipes: Vec<Recipe> = Vec::with_capacity(all_recipes.len());
-
-        let all_recipes: HashMap<String, Recipe> = persistency::load_recipes();
-        for (_n, recipe) in all_recipes {
+    fn get_recipes_by_tags<'a>(
+        recipes: &'a HashMap<String, Recipe>,
+        tags: &Vec<String>,
+    ) -> Vec<&'a Recipe> {
+        let mut recipes_by_tag: Vec<&Recipe> = Vec::with_capacity(recipes.len());
+        for (_n, recipe) in recipes {
             for tag in &recipe.tags {
                 if tags.contains(&tag) {
-                    recipes.push(recipe);
+                    recipes_by_tag.push(recipe);
                     break;
                 }
             }
         }
-        return recipes;
+        return recipes_by_tag;
     }
 
     pub fn print_recipes_by_name() {
         println!("Enter the name of the Recipe");
         let input = crate::read_from_stdin();
+        let all_recipes = persistency::load_recipes();
 
-        for recipe in Recipe::get_recipes_by_name(input.as_str()) {
+        for recipe in Recipe::get_recipes_by_name(&all_recipes, input.as_str()) {
             Recipe::print_recipe(&recipe.name, &recipe);
         }
     }
@@ -146,9 +152,10 @@ impl Recipe {
         println!("Enter a name of an Ingredient which is used for the Recipe");
         let input = crate::read_from_stdin();
         let input = input.as_str();
+        let all_recipes = persistency::load_recipes();
 
         let inputs: Vec<&str> = input.trim().split(',').collect();
-        for recipe in Recipe::get_recipes_by_ingredients(inputs) {
+        for recipe in Recipe::get_recipes_by_ingredients(&all_recipes, inputs) {
             Recipe::print_recipe(&recipe.name, &recipe);
         }
     }
@@ -174,9 +181,106 @@ impl Recipe {
         println!("Enter tags of Recipes to display:");
         let input = crate::read_from_stdin();
         let tags = Recipe::unify_tags(input.as_str());
+        let all_recipes = persistency::load_recipes();
 
-        for recipe in Recipe::get_recipes_by_tags(tags) {
+        for recipe in Recipe::get_recipes_by_tags(&all_recipes, &tags) {
             Recipe::print_recipe(&recipe.name, &recipe);
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::Recipe;
+    use crate::Ingredient;
+    use std::collections::HashMap;
+    use std::collections::HashSet;
+
+    #[test]
+    fn test_unify_tag() {
+        let tags = "a,#b";
+        let tags = Recipe::unify_tags(tags);
+
+        let tag_a = "#a".to_string();
+        assert!(tags.contains(&tag_a));
+
+        let tag_b = "#b".to_string();
+        assert!(tags.contains(&tag_b));
+    }
+
+    fn get_mocks() -> HashMap<String, Recipe> {
+                let mut recipes: HashMap<String, Recipe> = HashMap::with_capacity(2);
+
+        let name1 = "R1".to_string();
+        let ingredients1: HashMap<String, (Ingredient, u16, String)> = HashMap::new();
+        let mut tags1: HashSet<String> = HashSet::new();
+        tags1.insert("1".to_string());
+        tags1.insert("3".to_string());
+
+        let r1 = Recipe {
+            name: name1,
+            ingredients: ingredients1,
+            tags: tags1,
+        };
+        recipes.insert("R1".to_string(), r1);
+
+        let name2 = "R2".to_string();
+        let ingredients2: HashMap<String, (Ingredient, u16, String)> = HashMap::new();
+        let mut tags2: HashSet<String> = HashSet::new();
+        tags2.insert("2".to_string());
+        tags2.insert("3".to_string());
+
+        let r2 = Recipe {
+            name: name2,
+            ingredients: ingredients2,
+            tags: tags2,
+        };
+
+        recipes.insert("R2".to_string(), r2);
+
+        return recipes;
+    }
+
+    #[test]
+    fn test_by_name() {
+        let recipes = self::get_mocks();
+
+        let recipes_r = Recipe::get_recipes_by_name(&recipes, "R");
+        assert!(recipes_r.contains(&recipes.get("R1").unwrap()));
+        assert!(recipes_r.contains(&recipes.get("R2").unwrap()));
+
+        let recipes_1 = Recipe::get_recipes_by_name(&recipes, "1");
+        assert!(recipes_1.contains(&recipes.get("R1").unwrap()));
+        assert!(!recipes_1.contains(&recipes.get("R2").unwrap()));
+
+        let recipes_2 = Recipe::get_recipes_by_name(&recipes, "2");
+        assert!(!recipes_2.contains(&recipes.get("R1").unwrap()));
+        assert!(recipes_2.contains(&recipes.get("R2").unwrap()));
+    }
+
+    #[test]
+    fn test_by_tag() {
+        let recipes = self::get_mocks();
+        let mut tags: Vec<String> = Vec::with_capacity(2);
+        let tag = "1".to_string();
+        tags.push(tag);
+
+        let recipes_r = Recipe::get_recipes_by_tags(&recipes, &tags);
+        assert!(recipes_r.contains(&recipes.get("R1").unwrap()));
+        assert!(!recipes_r.contains(&recipes.get("R2").unwrap()));
+
+        tags.clear();
+        let tag = "2".to_string();
+        tags.push(tag);
+        let recipes_1 = Recipe::get_recipes_by_tags(&recipes, &tags);
+        assert!(!recipes_1.contains(&recipes.get("R1").unwrap()));
+        assert!(recipes_1.contains(&recipes.get("R2").unwrap()));
+
+        tags.clear();
+        let tag = "3".to_string();
+        tags.push(tag);
+        let recipes_2 = Recipe::get_recipes_by_tags(&recipes, &tags);
+        assert!(recipes_2.contains(&recipes.get("R1").unwrap()));
+        assert!(recipes_2.contains(&recipes.get("R2").unwrap()));
     }
 }
