@@ -102,7 +102,8 @@ impl Recipe {
 
     fn get_recipes_by_ingredients<'a>(
         recipes: &'a HashMap<String, Recipe>,
-        ingredient_names: Vec<&str>,
+        ingredient_included: &Vec<String>,
+        tags_excluding: &Vec<String>,
     ) -> Vec<&'a Recipe> {
         let mut recipes_by_ingredient: Vec<&Recipe> = Vec::with_capacity(recipes.len());
 
@@ -110,8 +111,17 @@ impl Recipe {
             if recipe
                 .ingredients
                 .iter()
-                .find(|&(name, (_i, _a, _u))| ingredient_names.contains(&name.as_str()))
+                .find(|&(name, (_i, _a, _u))| ingredient_included.contains(&name))
                 .is_none()
+            {
+                continue;
+            }
+
+            if recipe
+                .ingredients
+                .iter()
+                .find(|&(name, (_i, _a, _u))| tags_excluding.contains(&name))
+                .is_some()
             {
                 continue;
             }
@@ -148,14 +158,31 @@ impl Recipe {
         }
     }
 
+    fn split_including_and_excluding(input: Vec<&str>) -> (Vec<String>, Vec<String>) {
+        let mut including: Vec<String> = Vec::new();
+        let mut excluding: Vec<String> = Vec::new();
+
+        for s in input {
+            if s.starts_with('!') {
+                excluding.push(s.chars().skip(1).collect());
+            } else {
+                including.push(s.to_string());
+            }
+        }
+
+        return (including, excluding);
+    }
+
     pub fn print_recipes_by_used_ingredient() {
         println!("Enter a name of an Ingredient which is used for the Recipe");
+        println!("To exclude an Ingredient put an ! before: eg Sugar,!Eggs");
         let input = crate::read_from_stdin();
         let input = input.as_str();
         let all_recipes = persistency::load_recipes();
 
-        let inputs: Vec<&str> = input.trim().split(',').collect();
-        for recipe in Recipe::get_recipes_by_ingredients(&all_recipes, inputs) {
+        let input: Vec<&str> = input.trim().split(',').collect();
+        let (including, excluding) = Recipe::split_including_and_excluding(input);
+        for recipe in Recipe::get_recipes_by_ingredients(&all_recipes, &including, &excluding) {
             Recipe::print_recipe(&recipe.name, &recipe);
         }
     }
@@ -197,6 +224,25 @@ mod tests {
     use std::collections::HashSet;
 
     #[test]
+    fn split_including_and_excluding() {
+        let mut input : Vec<&str> = Vec::with_capacity(2);
+        let s1 = "a";
+        input.push(s1);
+        let s2 = "!b";
+        let s3 = "b";
+        input.push(s2);
+
+        let (included, excluded) = Recipe::split_including_and_excluding(input);
+        assert!(included.len() == 1);
+        assert!(included.contains(&s1.to_string()));
+        assert!(!included.contains(&s2.to_string()));
+        
+        assert!(excluded.len() == 1);
+        assert!(!excluded.contains(&s1.to_string()));
+        assert!(excluded.contains(&s3.to_string()));
+    }
+
+    #[test]
     fn test_unify_tag() {
         let tags = "a,#b";
         let tags = Recipe::unify_tags(tags);
@@ -209,7 +255,7 @@ mod tests {
     }
 
     fn get_mocks() -> HashMap<String, Recipe> {
-                let mut recipes: HashMap<String, Recipe> = HashMap::with_capacity(2);
+        let mut recipes: HashMap<String, Recipe> = HashMap::with_capacity(2);
 
         let name1 = "R1".to_string();
         let ingredients1: HashMap<String, (Ingredient, u16, String)> = HashMap::new();
