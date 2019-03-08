@@ -108,24 +108,20 @@ impl Recipe {
         let mut recipes_by_ingredient: Vec<&Recipe> = Vec::with_capacity(recipes.len());
 
         for (_n, recipe) in recipes {
-            if recipe
-                .ingredients
-                .iter()
-                .find(|&(name, (_i, _a, _u))| ingredient_included.contains(&name))
-                .is_none()
-            {
+            let mut included = false;
+            let mut excluded = false;
+            for (i_n, (_i, _a, _u)) in &recipe.ingredients {
+                if ingredient_included.contains(i_n) {
+                    included = true;
+                }
+                if tags_excluding.contains(i_n) {
+                    excluded = true;
+                    break;
+                }
+            }
+            if included == false || excluded == true {
                 continue;
             }
-
-            if recipe
-                .ingredients
-                .iter()
-                .find(|&(name, (_i, _a, _u))| tags_excluding.contains(&name))
-                .is_some()
-            {
-                continue;
-            }
-
             recipes_by_ingredient.push(recipe);
         }
 
@@ -226,13 +222,12 @@ mod tests {
     #[test]
     fn split_including_and_excluding() {
         let input: Vec<&str> = vec!["a", "!b"];
-        
 
         let (included, excluded) = Recipe::split_including_and_excluding(input);
         assert!(included.len() == 1);
         assert!(included.contains(&"a".to_string()));
         assert!(!included.contains(&"b".to_string()));
-        
+
         assert!(excluded.len() == 1);
         assert!(!excluded.contains(&"a".to_string()));
         assert!(excluded.contains(&"b".to_string()));
