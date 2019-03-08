@@ -103,23 +103,23 @@ impl Recipe {
     fn get_recipes_by_ingredients<'a>(
         recipes: &'a HashMap<String, Recipe>,
         ingredient_included: &Vec<String>,
-        tags_excluding: &Vec<String>,
+        ingredient_excluding: &Vec<String>,
     ) -> Vec<&'a Recipe> {
         let mut recipes_by_ingredient: Vec<&Recipe> = Vec::with_capacity(recipes.len());
 
         for (_n, recipe) in recipes {
-            let mut included = false;
-            let mut excluded = false;
+            let mut is_included = ingredient_included.is_empty();
+            let mut is_excluded = false;
             for (i_n, (_i, _a, _u)) in &recipe.ingredients {
-                if ingredient_included.contains(i_n) {
-                    included = true;
+                if is_included == false && ingredient_included.contains(i_n) {
+                    is_included = true;
                 }
-                if tags_excluding.contains(i_n) {
-                    excluded = true;
+                if ingredient_excluding.contains(i_n) {
+                    is_excluded = true;
                     break;
                 }
             }
-            if included == false || excluded == true {
+            if is_included == false || is_excluded {
                 continue;
             }
             recipes_by_ingredient.push(recipe);
@@ -215,6 +215,7 @@ impl Recipe {
 #[cfg(test)]
 mod tests {
     use super::Recipe;
+    use crate::Group;
     use crate::Ingredient;
     use std::collections::HashMap;
     use std::collections::HashSet;
@@ -249,7 +250,18 @@ mod tests {
         let mut recipes: HashMap<String, Recipe> = HashMap::with_capacity(2);
 
         let name1 = "R1".to_string();
-        let ingredients1: HashMap<String, (Ingredient, u16, String)> = HashMap::new();
+        let mut ingredients1: HashMap<String, (Ingredient, u16, String)> = HashMap::new();
+        let in1 = Ingredient {
+            name: "A".to_string(),
+            group: Group::Other,
+        };
+        ingredients1.insert("A".to_string(), (in1, 1, "unit".to_string()));
+        let in2 = Ingredient {
+            name: "B".to_string(),
+            group: Group::Other,
+        };
+        ingredients1.insert("B".to_string(), (in2, 1, "unit".to_string()));
+
         let mut tags1: HashSet<String> = HashSet::new();
         tags1.insert("1".to_string());
         tags1.insert("3".to_string());
@@ -262,7 +274,17 @@ mod tests {
         recipes.insert("R1".to_string(), r1);
 
         let name2 = "R2".to_string();
-        let ingredients2: HashMap<String, (Ingredient, u16, String)> = HashMap::new();
+        let mut ingredients2: HashMap<String, (Ingredient, u16, String)> = HashMap::new();
+        let in12 = Ingredient {
+            name: "A".to_string(),
+            group: Group::Other,
+        };
+        ingredients2.insert("A".to_string(), (in12, 1, "unit".to_string()));
+        let in22 = Ingredient {
+            name: "C".to_string(),
+            group: Group::Other,
+        };
+        ingredients2.insert("C".to_string(), (in22, 1, "unit".to_string()));
         let mut tags2: HashSet<String> = HashSet::new();
         tags2.insert("2".to_string());
         tags2.insert("3".to_string());
@@ -276,6 +298,55 @@ mod tests {
         recipes.insert("R2".to_string(), r2);
 
         return recipes;
+    }
+
+    #[test]
+    fn test_by_ingredient_all() {
+        let recipes = self::get_mocks();
+        let including: Vec<String> = vec!["A".to_string()];
+        let excluding: Vec<String> = Vec::with_capacity(0);
+
+        let filtered = Recipe::get_recipes_by_ingredients(&recipes, &including, &excluding);
+
+        assert!(filtered.contains(&recipes.get("R1").unwrap()));
+        assert!(filtered.contains(&recipes.get("R2").unwrap()));
+    }
+
+    #[test]
+    fn test_by_ingredient_with_exclude() {
+        let recipes = self::get_mocks();
+        let including: Vec<String> = Vec::with_capacity(0);
+        let excluding: Vec<String> = vec!["A".to_string()];
+
+        let filtered: Vec<&Recipe> =
+            Recipe::get_recipes_by_ingredients(&recipes, &including, &excluding);
+
+        assert!(!filtered.contains(&recipes.get("R1").unwrap()));
+        assert!(!filtered.contains(&recipes.get("R2").unwrap()));
+    }
+
+    #[test]
+    fn test_by_ingredient_with_exclude_and_include() {
+        let recipes = self::get_mocks();
+        let including: Vec<String> = vec!["A".to_string()];
+        let excluding: Vec<String> = vec!["C".to_string()];
+
+        let filtered = Recipe::get_recipes_by_ingredients(&recipes, &including, &excluding);
+
+        assert!(filtered.contains(&recipes.get("R1").unwrap()));
+        assert!(!filtered.contains(&recipes.get("R2").unwrap()));
+    }
+
+    #[test]
+    fn test_by_ingredient_with_exclude_and_inclu() {
+        let recipes = self::get_mocks();
+        let including: Vec<String> = vec!["A".to_string()];
+        let excluding: Vec<String> = vec!["B".to_string(),"C".to_string()];
+
+        let filtered = Recipe::get_recipes_by_ingredients(&recipes, &including, &excluding);
+
+        assert!(!filtered.contains(&recipes.get("R1").unwrap()));
+        assert!(!filtered.contains(&recipes.get("R2").unwrap()));
     }
 
     #[test]
