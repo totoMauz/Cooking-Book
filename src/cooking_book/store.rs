@@ -40,3 +40,27 @@ impl Store {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::Store;
+    #[test]
+    fn test_store_size() {
+        let it = Store::get_store_iterator();
+        let (size, _asd) = it.size_hint();
+        assert_eq!(size, 8);
+    }
+
+    #[test]
+    fn test_lookup_store() {
+        assert_eq!(Store::lookup_store_number(0), Store::Lidl);
+        assert_eq!(Store::lookup_store_number(1), Store::ALDI);
+        assert_eq!(Store::lookup_store_number(2), Store::Rewe);
+        assert_eq!(Store::lookup_store_number(3), Store::DM);
+        assert_eq!(Store::lookup_store_number(4), Store::Denz);
+        assert_eq!(Store::lookup_store_number(5), Store::Netto);
+        assert_eq!(Store::lookup_store_number(6), Store::Kaufland);
+        assert_eq!(Store::lookup_store_number(7), Store::Any);
+        assert_eq!(Store::lookup_store_number(8), Store::Any);
+    }
+}
