@@ -225,21 +225,17 @@ mod tests {
 
     #[test]
     fn split_including_and_excluding() {
-        let mut input : Vec<&str> = Vec::with_capacity(2);
-        let s1 = "a";
-        input.push(s1);
-        let s2 = "!b";
-        let s3 = "b";
-        input.push(s2);
+        let input: Vec<&str> = vec!["a", "!b"];
+        
 
         let (included, excluded) = Recipe::split_including_and_excluding(input);
         assert!(included.len() == 1);
-        assert!(included.contains(&s1.to_string()));
-        assert!(!included.contains(&s2.to_string()));
+        assert!(included.contains(&"a".to_string()));
+        assert!(!included.contains(&"b".to_string()));
         
         assert!(excluded.len() == 1);
-        assert!(!excluded.contains(&s1.to_string()));
-        assert!(excluded.contains(&s3.to_string()));
+        assert!(!excluded.contains(&"a".to_string()));
+        assert!(excluded.contains(&"b".to_string()));
     }
 
     #[test]
@@ -307,9 +303,7 @@ mod tests {
     #[test]
     fn test_by_tag() {
         let recipes = self::get_mocks();
-        let mut tags: Vec<String> = Vec::with_capacity(2);
-        let tag = "1".to_string();
-        tags.push(tag);
+        let mut tags: Vec<String> = vec!["1".to_string()];
 
         let recipes_r = Recipe::get_recipes_by_tags(&recipes, &tags);
         assert!(recipes_r.contains(&recipes.get("R1").unwrap()));
