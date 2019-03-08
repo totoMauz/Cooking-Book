@@ -1,13 +1,15 @@
 use std::cmp::Ordering;
 use std::fmt;
 
-use crate::file_access::persistency;
 use crate::cooking_book::group::Group;
+use crate::cooking_book::store::Store;
+use crate::file_access::persistency;
 
 #[derive(Clone, PartialEq, Eq)]
 pub struct Ingredient {
     pub name: String,
     pub group: Group,
+    pub preferred_store: Store,
 }
 
 impl Ingredient {
@@ -24,7 +26,20 @@ impl Ingredient {
             Err(_) => Group::Other,
         };
 
-        Ok(Ingredient { name, group })
+        let store = match values.next() {
+            Some(store) => store.trim(),
+            None => "<empty>",
+        };
+        let store: Store = match store.parse() {
+            Ok(num) => Store::lookup_store_number(num),
+            Err(_) => Store::Any,
+        };
+
+        Ok(Ingredient {
+            name,
+            group,
+            preferred_store: store,
+        })
     }
 
     pub fn save_new_ingredient() {
@@ -98,6 +113,7 @@ impl fmt::Display for Ingredient {
 mod tests {
     use super::Ingredient;
     use crate::cooking_book::group::Group;
+    use crate::cooking_book::store::Store;
     use std::cmp::Ordering;
 
     #[test]
@@ -161,10 +177,12 @@ mod tests {
         let i1 = Ingredient {
             name: String::from("asd"),
             group: Group::Other,
+            preferred_store: Store::Any,
         };
         let i2 = Ingredient {
             name: String::from("asd"),
             group: Group::Other,
+            preferred_store: Store::Any,
         };
 
         assert_eq!(i1.cmp(&i2), Ordering::Equal);
@@ -175,10 +193,12 @@ mod tests {
         let i1 = Ingredient {
             name: String::from("asd"),
             group: Group::Vegetable,
+            preferred_store: Store::Any,
         };
         let i2 = Ingredient {
             name: String::from("asd"),
             group: Group::Other,
+            preferred_store: Store::Any,
         };
 
         assert_eq!(i1.cmp(&i2), Ordering::Greater);
@@ -189,10 +209,12 @@ mod tests {
         let i1 = Ingredient {
             name: String::from("asd"),
             group: Group::Vegetable,
+            preferred_store: Store::Any,
         };
         let i2 = Ingredient {
             name: String::from("asc"),
             group: Group::Vegetable,
+            preferred_store: Store::Any,
         };
 
         assert_eq!(i1.cmp(&i2), Ordering::Greater);

@@ -1,5 +1,6 @@
 use crate::cooking_book::group::Group;
 use crate::cooking_book::ingredient::Ingredient;
+use crate::cooking_book::store::Store;
 use crate::file_access::persistency;
 use std::collections::HashMap;
 use std::collections::HashSet;
@@ -43,11 +44,10 @@ impl Recipe {
             };
 
             if !all_ingredients.contains_key(name) {
-                let name_str = String::from(name);
-                let group = Group::Other;
                 let new_ingredient = Ingredient {
-                    name: name_str,
-                    group,
+                    name: String::from(name),
+                    group: Group::Other,
+                    preferred_store: Store::Any,
                 };
                 persistency::write_ingredient(new_ingredient.clone());
                 all_ingredients.insert(String::from(name), new_ingredient.clone());
@@ -215,6 +215,7 @@ impl Recipe {
 #[cfg(test)]
 mod tests {
     use super::Recipe;
+    use crate::cooking_book::store::Store;
     use crate::Group;
     use crate::Ingredient;
     use std::collections::HashMap;
@@ -254,11 +255,13 @@ mod tests {
         let in1 = Ingredient {
             name: "A".to_string(),
             group: Group::Other,
+            preferred_store: Store::Any,
         };
         ingredients1.insert("A".to_string(), (in1, 1, "unit".to_string()));
         let in2 = Ingredient {
             name: "B".to_string(),
             group: Group::Other,
+            preferred_store: Store::Any,
         };
         ingredients1.insert("B".to_string(), (in2, 1, "unit".to_string()));
 
@@ -278,11 +281,13 @@ mod tests {
         let in12 = Ingredient {
             name: "A".to_string(),
             group: Group::Other,
+            preferred_store: Store::Any,
         };
         ingredients2.insert("A".to_string(), (in12, 1, "unit".to_string()));
         let in22 = Ingredient {
             name: "C".to_string(),
             group: Group::Other,
+            preferred_store: Store::Any,
         };
         ingredients2.insert("C".to_string(), (in22, 1, "unit".to_string()));
         let mut tags2: HashSet<String> = HashSet::new();
@@ -341,7 +346,7 @@ mod tests {
     fn test_by_ingredient_with_exclude_and_inclu() {
         let recipes = self::get_mocks();
         let including: Vec<String> = vec!["A".to_string()];
-        let excluding: Vec<String> = vec!["B".to_string(),"C".to_string()];
+        let excluding: Vec<String> = vec!["B".to_string(), "C".to_string()];
 
         let filtered = Recipe::get_recipes_by_ingredients(&recipes, &including, &excluding);
 

@@ -4,6 +4,7 @@ mod cooking_book {
     pub mod group;
     pub mod ingredient;
     pub mod recipe;
+    pub mod store;
 }
 
 mod file_access {
@@ -13,6 +14,7 @@ mod file_access {
 use crate::cooking_book::group::Group;
 use crate::cooking_book::ingredient::Ingredient;
 use crate::cooking_book::recipe::Recipe;
+use crate::cooking_book::store::Store;
 
 pub fn read_from_stdin() -> String {
     let mut input = String::new();
@@ -41,8 +43,7 @@ fn main() {
                     &_ => continue,
                 }
             },
-            "2" => Group::print_all_groups_multi_line(),
-            "3" => loop {
+            "2" => loop {
                 print_menu_recipes();
                 let sub_menu = read_from_stdin();
 
@@ -55,6 +56,8 @@ fn main() {
                     &_ => continue,
                 }
             },
+            "3" => Group::print_all_groups_multi_line(),
+            "4" => Store::print_all_store_multi_line(),
             &_ => eprintln!("Unrecognized input {}", main_menu),
         }
     }
@@ -64,8 +67,9 @@ fn print_menu() {
     println!("-------------------");
     println!("0: Exit");
     println!("1: Ingredients");
-    println!("2: Show all Groups");
-    println!("3: Recipes");
+    println!("2: Recipes");
+    println!("3: Show all Groups");
+    println!("4: Show all Stores");
     println!("-------------------");
 }
 
