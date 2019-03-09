@@ -10,6 +10,7 @@ pub enum Group {
     Conserved = 3,
     Beverage = 4,
     Baking = 5,
+    Spice = 6,
     Other = -1,
 }
 
@@ -22,7 +23,7 @@ impl Group {
     pub fn print_all_groups_multi_line() {
         let mut idx = 0;
         for group in Group::get_group_iterator() {
-            println!("{}: {:?}", idx, group);
+            println!("{}: {}", idx, group);
             idx += 1;
         }
     }
@@ -44,6 +45,7 @@ impl Group {
             3 => Group::Conserved,
             4 => Group::Beverage,
             5 => Group::Baking,
+            6 => Group::Spice,
             _ => Group::Other,
         }
     }
@@ -58,6 +60,7 @@ impl fmt::Display for Group {
             Group::Conserved => write!(f, "Konserve"),
             Group::Beverage => write!(f, "Getränk"),
             Group::Baking => write!(f, "Backzutat"),
+            Group::Spice => write!(f, "Gewürz"),
             Group::Other => write!(f, "Anderes"),
         }
     }
@@ -86,7 +89,7 @@ mod tests {
         assert_eq!(Group::lookup_group_number(3), Group::Conserved);
         assert_eq!(Group::lookup_group_number(4), Group::Beverage);
         assert_eq!(Group::lookup_group_number(5), Group::Baking);
-        assert_eq!(Group::lookup_group_number(6), Group::Other);
+        assert_eq!(Group::lookup_group_number(6), Group::Spice);
         assert_eq!(Group::lookup_group_number(7), Group::Other);
     }
 }
