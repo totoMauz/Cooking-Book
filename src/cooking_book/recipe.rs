@@ -70,11 +70,47 @@ impl Recipe {
         })
     }
 
-    fn print_recipe(name: &str, recipe: &Recipe) {
-        println!("{}", name);
-        println!("{:?}", &recipe.tags);
+    fn to_json(&self) -> String {
+        let mut json : String = String::new();
+        json.push('{');
+        json.push_str("\"name\": \"");
+        json.push_str(&self.name);
+        json.push_str("\", ");
+        json.push_str("\"ingredients\": [");
 
-        for (name, (_i, amount, unit)) in &recipe.ingredients {
+        for (_i_n, (i,a,u)) in &self.ingredients {
+            json.push_str(Recipe::ingredient_to_json(i,a,u).as_str());
+        }
+
+        json.push_str("]");
+        json.push('}');
+        return json;
+    }
+
+    fn ingredient_to_json(i: &Ingredient, a: &u16, u: &String) -> String {
+        let mut json: String = String::new();
+        json.push('{');
+        json.push_str("\"name\": \"");
+        json.push_str(&i.name);
+        json.push_str("\", ");
+
+        json.push_str("\"amount\": ");
+        json.push_str(&format!("{}", &a));
+        json.push_str(", ");
+
+        json.push_str("\"unit\": \"");
+        json.push_str(&u);
+        json.push_str("\"");
+
+        json.push('}');
+        return json;
+    }
+
+    fn print_recipe(&self, name: &str) {
+        println!("{}", name);
+        println!("{:?}", &self.tags);
+
+        for (name, (_i, amount, unit)) in &self.ingredients {
             println!("\t{}: {} {}", name, amount, unit);
         }
         println!();
@@ -83,7 +119,7 @@ impl Recipe {
     pub fn print_all_recipes_multi_line() {
         let all_recipes = persistency::load_recipes();
         for (name, recipe) in all_recipes {
-            Recipe::print_recipe(name.as_str(), &recipe);
+            recipe.print_recipe(name.as_str());
         }
     }
 
@@ -150,7 +186,7 @@ impl Recipe {
         let all_recipes = persistency::load_recipes();
 
         for recipe in Recipe::get_recipes_by_name(&all_recipes, input.as_str()) {
-            Recipe::print_recipe(&recipe.name, &recipe);
+           recipe.print_recipe(&recipe.name);
         }
     }
 
@@ -179,7 +215,7 @@ impl Recipe {
         let input: Vec<&str> = input.trim().split(',').collect();
         let (including, excluding) = Recipe::split_including_and_excluding(input);
         for recipe in Recipe::get_recipes_by_ingredients(&all_recipes, &including, &excluding) {
-            Recipe::print_recipe(&recipe.name, &recipe);
+            recipe.print_recipe(&recipe.name);
         }
     }
 
@@ -207,7 +243,7 @@ impl Recipe {
         let all_recipes = persistency::load_recipes();
 
         for recipe in Recipe::get_recipes_by_tags(&all_recipes, &tags) {
-            Recipe::print_recipe(&recipe.name, &recipe);
+            recipe.print_recipe(&recipe.name);
         }
     }
 }
@@ -222,7 +258,29 @@ mod tests {
     use std::collections::HashSet;
 
     #[test]
-    fn split_including_and_excluding() {
+    fn test_json() {
+        let mut ingredients1: HashMap<String, (Ingredient, u16, String)> = HashMap::with_capacity(1);
+        let in1 = Ingredient {
+            name: "Ei".to_string(),
+            group: Group::Freezer,
+            preferred_store: Store::Lidl,
+        };
+        ingredients1.insert("Ei".to_string(), (in1, 1, "Stück".to_string()));
+
+        let mut tags1: HashSet<String> = HashSet::with_capacity(1);
+        tags1.insert("Frühstück".to_string());
+
+        let waffels = Recipe {
+            name: "Waffeln".to_string(),
+            ingredients: ingredients1,
+            tags: tags1,
+        };
+
+        assert_eq!(waffels.to_json(), "{\"name\": \"Waffeln\", \"ingredients\": [{\"name\": \"Ei\", \"amount\": 1, \"unit\": \"Stück\"}]}")
+    }
+
+    #[test]
+    fn test_split_including_and_excluding() {
         let input: Vec<&str> = vec!["a", "!b"];
 
         let (included, excluded) = Recipe::split_including_and_excluding(input);
