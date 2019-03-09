@@ -16,6 +16,11 @@ use crate::cooking_book::ingredient::Ingredient;
 use crate::cooking_book::recipe::Recipe;
 use crate::cooking_book::store::Store;
 
+/// Read from stdin
+/// 
+/// # Panics
+///
+/// The `read_from_stdin` function will panic if it cannot read from stdin
 pub fn read_from_stdin() -> String {
     let mut input = String::new();
     io::stdin()

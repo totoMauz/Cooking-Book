@@ -42,6 +42,27 @@ impl Ingredient {
         })
     }
 
+    pub fn to_json(&self) -> String{
+        let mut json :String = String::new();
+        json.push('{');
+
+        json.push_str("\"name\": \"");
+        json.push_str(&self.name);
+        json.push_str("\", ");
+        
+        json.push_str("\"group\": \"");
+        json.push_str(&format!("{}", &self.group));
+        json.push_str("\", ");
+        
+        json.push_str("\"store\": \"");
+        json.push_str(&format!("{:?}", &self.preferred_store));
+        json.push_str("\"");
+
+        json.push('}');
+
+        return json;
+    }
+
     pub fn save_new_ingredient() {
         println!("Enter a name and the group like this Name;0");
         println!("Possible groups are: ");
@@ -115,6 +136,12 @@ mod tests {
     use crate::cooking_book::group::Group;
     use crate::cooking_book::store::Store;
     use std::cmp::Ordering;
+
+    #[test]
+    fn test_to_json() {
+        let ingredient = Ingredient{name: "Gurke".to_string(), group: Group::Vegetable, preferred_store: Store::Lidl};
+        assert_eq!(ingredient.to_json(), "{\"name\": \"Gurke\", \"group\": \"Gemüse\", \"store\": \"Lidl\"}");
+    }
 
     #[test]
     fn test_new_by_line_empty_1() {
