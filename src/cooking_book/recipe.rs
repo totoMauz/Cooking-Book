@@ -8,7 +8,7 @@ use std::collections::HashSet;
 #[derive(PartialEq, Eq)]
 pub struct Recipe {
     pub name: String,
-    pub ingredients: HashMap<String, (Ingredient, u16, String)>,
+    pub ingredients: HashMap<Ingredient, (u16, String)>,
     pub tags: HashSet<String>,
 }
 
@@ -18,7 +18,7 @@ impl Recipe {
         let name = String::from(values.next().unwrap());
 
         let mut all_ingredients = persistency::load_ingredients();
-        let mut ingredients: HashMap<String, (Ingredient, u16, String)> = HashMap::new();
+        let mut ingredients: HashMap<Ingredient, (u16, String)> = HashMap::new();
         let mut tags: HashSet<String> = HashSet::new();
 
         for s in values {
@@ -54,9 +54,8 @@ impl Recipe {
             }
 
             ingredients.insert(
-                name.to_string(),
+                all_ingredients.get(name).unwrap().clone(),
                 (
-                    all_ingredients.get(name).unwrap().clone(),
                     amount,
                     String::from(unit),
                 ),
@@ -78,7 +77,7 @@ impl Recipe {
         json.push_str("\", ");
         json.push_str("\"ingredients\": [");
 
-        for (_i_n, (i,a,u)) in &self.ingredients {
+        for (i, (a,u)) in &self.ingredients {
             json.push_str(Recipe::ingredient_to_json(i,a,u).as_str());
         }
 
@@ -110,8 +109,8 @@ impl Recipe {
         println!("{}", name);
         println!("{:?}", &self.tags);
 
-        for (name, (_i, amount, unit)) in &self.ingredients {
-            println!("\t{}: {} {}", name, amount, unit);
+        for (i, (amount, unit)) in &self.ingredients {
+            println!("\t{}: {} {}", i.name, amount, unit);
         }
         println!();
     }
@@ -146,11 +145,11 @@ impl Recipe {
         for (_n, recipe) in recipes {
             let mut is_included = ingredient_included.is_empty();
             let mut is_excluded = false;
-            for (i_n, (_i, _a, _u)) in &recipe.ingredients {
-                if is_included == false && ingredient_included.contains(i_n) {
+            for (i, (_a, _u)) in &recipe.ingredients {
+                if is_included == false && ingredient_included.contains(&i.name) {
                     is_included = true;
                 }
-                if ingredient_excluding.contains(i_n) {
+                if ingredient_excluding.contains(&i.name) {
                     is_excluded = true;
                     break;
                 }
@@ -259,13 +258,13 @@ mod tests {
 
     #[test]
     fn test_json() {
-        let mut ingredients1: HashMap<String, (Ingredient, u16, String)> = HashMap::with_capacity(1);
+        let mut ingredients1: HashMap<Ingredient, (u16, String)> = HashMap::with_capacity(1);
         let in1 = Ingredient {
             name: "Ei".to_string(),
             group: Group::Freezer,
             preferred_store: Store::Lidl,
         };
-        ingredients1.insert("Ei".to_string(), (in1, 1, "Stück".to_string()));
+        ingredients1.insert(in1, (1, "Stück".to_string()));
 
         let mut tags1: HashSet<String> = HashSet::with_capacity(1);
         tags1.insert("Frühstück".to_string());
@@ -309,19 +308,20 @@ mod tests {
         let mut recipes: HashMap<String, Recipe> = HashMap::with_capacity(2);
 
         let name1 = "R1".to_string();
-        let mut ingredients1: HashMap<String, (Ingredient, u16, String)> = HashMap::new();
+        let mut ingredients1: HashMap<Ingredient, (u16, String)> = HashMap::new();
         let in1 = Ingredient {
             name: "A".to_string(),
             group: Group::Other,
             preferred_store: Store::Any,
         };
-        ingredients1.insert("A".to_string(), (in1, 1, "unit".to_string()));
+        ingredients1.insert(in1, (1, "unit".to_string()));
+
         let in2 = Ingredient {
             name: "B".to_string(),
             group: Group::Other,
             preferred_store: Store::Any,
         };
-        ingredients1.insert("B".to_string(), (in2, 1, "unit".to_string()));
+        ingredients1.insert(in2, (1, "unit".to_string()));
 
         let mut tags1: HashSet<String> = HashSet::new();
         tags1.insert("1".to_string());
@@ -335,19 +335,19 @@ mod tests {
         recipes.insert("R1".to_string(), r1);
 
         let name2 = "R2".to_string();
-        let mut ingredients2: HashMap<String, (Ingredient, u16, String)> = HashMap::new();
+        let mut ingredients2: HashMap<Ingredient, (u16, String)> = HashMap::new();
         let in12 = Ingredient {
             name: "A".to_string(),
             group: Group::Other,
             preferred_store: Store::Any,
         };
-        ingredients2.insert("A".to_string(), (in12, 1, "unit".to_string()));
+        ingredients2.insert(in12, (1, "unit".to_string()));
         let in22 = Ingredient {
             name: "C".to_string(),
             group: Group::Other,
             preferred_store: Store::Any,
         };
-        ingredients2.insert("C".to_string(), (in22, 1, "unit".to_string()));
+        ingredients2.insert(in22, (1, "unit".to_string()));
         let mut tags2: HashSet<String> = HashSet::new();
         tags2.insert("2".to_string());
         tags2.insert("3".to_string());

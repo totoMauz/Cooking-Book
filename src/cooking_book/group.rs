@@ -2,7 +2,7 @@ use self::Group::*;
 use std::fmt;
 use std::slice::Iter;
 
-#[derive(Eq, Ord, PartialEq, PartialOrd, Clone, Debug, Copy)]
+#[derive(Eq, Ord, PartialEq, PartialOrd, Clone, Debug, Copy, Hash)]
 pub enum Group {
     Vegetable = 0,
     Fruit = 1,

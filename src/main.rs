@@ -5,6 +5,7 @@ mod cooking_book {
     pub mod ingredient;
     pub mod recipe;
     pub mod store;
+    pub mod shopping_list;
 }
 
 mod file_access {

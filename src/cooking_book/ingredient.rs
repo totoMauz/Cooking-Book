@@ -5,7 +5,7 @@ use crate::cooking_book::group::Group;
 use crate::cooking_book::store::Store;
 use crate::file_access::persistency;
 
-#[derive(Clone, PartialEq, Eq)]
+#[derive(Clone, PartialEq, Eq, Hash)]
 pub struct Ingredient {
     pub name: String,
     pub group: Group,

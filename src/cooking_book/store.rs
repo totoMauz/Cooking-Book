@@ -1,7 +1,7 @@
 use self::Store::*;
 use std::slice::Iter;
 
-#[derive(Eq, Ord, PartialEq, PartialOrd, Clone, Debug, Copy)]
+#[derive(Eq, Ord, PartialEq, PartialOrd, Clone, Debug, Copy, Hash)]
 pub enum Store {
     Lidl = 0,
     ALDI = 1,
