@@ -6,9 +6,16 @@ use std::process;
 
 use crate::cooking_book::ingredient::Ingredient;
 use crate::cooking_book::recipe::Recipe;
+use crate::cooking_book::shopping_list::ShoppingList;
 
 fn load_file(file_name: &str) -> String {
     return fs::read_to_string(file_name).expect("Something went wrong reading the file");
+}
+
+pub fn load_shopping_list() -> ShoppingList {
+    let content = load_file("shoppingList.csv");
+
+    return ShoppingList::new();
 }
 
 pub fn load_recipes() -> HashMap<String, Recipe> {
