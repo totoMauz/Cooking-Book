@@ -89,7 +89,7 @@ pub fn load_ingredients() -> HashMap<String, Ingredient> {
     return all_ingredients;
 }
 
-pub fn write_all_ingredients(all_ingredients: Vec<Ingredient>) {
+pub fn write_all_ingredients(all_ingredients: &Vec<Ingredient>) {
     let mut file = OpenOptions::new()
         .write(true)
         .truncate(true)

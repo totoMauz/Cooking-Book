@@ -92,7 +92,7 @@ impl Ingredient {
         match found_ingredient {
             Some(position) => {
                 all_ingredients.remove(position);
-                persistency::write_all_ingredients(all_ingredients);
+                persistency::write_all_ingredients(&all_ingredients);
             }
             None => eprintln!("Couldn't find Ingredient {}", input),
         }
