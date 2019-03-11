@@ -1,5 +1,6 @@
 use std::collections::HashMap;
 use std::fs;
+use std::fs::File;
 use std::fs::OpenOptions;
 use std::io::prelude::*;
 use std::path::Path;
@@ -13,10 +14,15 @@ fn load_file(file_name: &str) -> String {
     if Path::new(file_name).is_file() {
         return fs::read_to_string(file_name).expect("Something went wrong reading the file");
     }
-    let mut file = OpenOptions::new().write(true).create_new(true).open(file_name).unwrap();
+    let mut file = OpenOptions::new()
+        .write(true)
+        .create_new(true)
+        .open(file_name)
+        .unwrap();
 
     let mut contents = String::new();
-    file.read_to_string(&mut contents).expect("Something went wrong reading the file");;
+    file.read_to_string(&mut contents)
+        .expect("Something went wrong reading the file");;
     return contents;
 }
 
@@ -31,7 +37,7 @@ pub fn load_shopping_list() -> ShoppingList {
 
         if !all_ingredients.contains_key(name) {
             let new_ingredient = Ingredient::new_by_name(name.to_string());
-            write_ingredient(&new_ingredient);
+            write_single_ingredient(&new_ingredient);
             all_ingredients.insert(String::from(name), new_ingredient);
         }
 
@@ -83,8 +89,7 @@ pub fn load_ingredients() -> HashMap<String, Ingredient> {
         }
 
         let name = line.split(';').next().unwrap();
-
-        all_ingredients.insert(String::from(name), Ingredient::new_by_line(line));
+        all_ingredients.insert(name.to_string(), Ingredient::new_by_line(line));
     }
     return all_ingredients;
 }
@@ -97,13 +102,11 @@ pub fn write_all_ingredients(all_ingredients: &Vec<Ingredient>) {
         .unwrap();
 
     for ingredient in all_ingredients {
-        if let Err(e) = writeln!(file, "{};{}", ingredient.name, ingredient.group as i8) {
-            eprintln!("Couldn't write to file: {}", e);
-        }
+        write_ingredient(&ingredient, &mut file);
     }
 }
 
-pub fn write_ingredient(new_ingredient: &Ingredient) {
+pub fn write_single_ingredient(new_ingredient: &Ingredient) {
     let mut file = OpenOptions::new()
         .append(true)
         .open("ingredients.csv")
@@ -111,10 +114,15 @@ pub fn write_ingredient(new_ingredient: &Ingredient) {
             eprintln!("Couldn't open file {}", err);
             process::exit(1);
         });
+
+    write_ingredient(&new_ingredient, &mut file);
+}
+
+fn write_ingredient(ingredient: &Ingredient, file: &mut File) {
     if let Err(e) = writeln!(
         file,
-        "{};{}",
-        new_ingredient.name, new_ingredient.group as i8
+        "{};{};{}",
+        ingredient.name, ingredient.group as i8, ingredient.preferred_store as i8
     ) {
         eprintln!("Couldn't write to file: {}", e);
     }
