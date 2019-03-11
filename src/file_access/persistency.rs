@@ -46,7 +46,7 @@ pub fn load_shopping_list() -> ShoppingList {
             None => "",
         };
 
-        let amount = match amount.parse() {
+        let amount = match amount.parse::<u16>() {
             Ok(x) => x,
             Err(_) => 1,
         };

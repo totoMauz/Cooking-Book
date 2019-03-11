@@ -21,7 +21,7 @@ impl Ingredient {
             Some(group) => group.trim(),
             None => "<empty>",
         };
-        let group: Group = match group.parse() {
+        let group: Group = match group.parse::<usize>() {
             Ok(num) => Group::lookup_group_number(num),
             Err(_) => Group::Other,
         };
@@ -30,7 +30,7 @@ impl Ingredient {
             Some(store) => store.trim(),
             None => "<empty>",
         };
-        let store: Store = match store.parse() {
+        let store: Store = match store.parse::<usize>() {
             Ok(num) => Store::lookup_store_number(num),
             Err(_) => Store::Any,
         };
@@ -79,7 +79,7 @@ impl Ingredient {
 
         let input = crate::read_from_stdin();
         let new_ingredient = Ingredient::new_by_line(input.as_str());
-        persistency::write_ingredient(&new_ingredient);
+        persistency::write_single_ingredient(&new_ingredient);
     }
 
     pub fn delete_ingredient() {

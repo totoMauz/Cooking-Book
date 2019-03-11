@@ -32,7 +32,7 @@ impl Recipe {
                 Some(amount) => amount,
                 None => "0",
             };
-            let amount = match amount.parse() {
+            let amount = match amount.parse::<u16>() {
                 Ok(num) => num,
                 Err(_) => 0,
             };
@@ -43,7 +43,7 @@ impl Recipe {
 
             if !all_ingredients.contains_key(name) {
                 let new_ingredient = Ingredient::new_by_name(name.to_string());
-                persistency::write_ingredient(&new_ingredient);
+                persistency::write_single_ingredient(&new_ingredient);
                 all_ingredients.insert(String::from(name), new_ingredient);
             }
 
