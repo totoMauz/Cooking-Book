@@ -13,7 +13,7 @@ pub struct Ingredient {
 }
 
 impl Ingredient {
-    pub fn new_by_line(line: &str) -> Result<Ingredient, &'static str> {
+    pub fn new_by_line(line: &str) -> Ingredient {
         let mut values = line.split(';');
 
         let name = String::from(values.next().unwrap());
@@ -35,25 +35,34 @@ impl Ingredient {
             Err(_) => Store::Any,
         };
 
-        Ok(Ingredient {
+        Ingredient {
             name,
             group,
             preferred_store: store,
-        })
+        }
     }
 
-    pub fn to_json(&self) -> String{
-        let mut json :String = String::new();
+    /// New Ingredident with default group and preferred store
+    pub fn new_by_name(name: String) -> Ingredient {
+        return Ingredient {
+            name: name,
+            group: Group::Other,
+            preferred_store: Store::Any,
+        };
+    }
+
+    pub fn to_json(&self) -> String {
+        let mut json: String = String::new();
         json.push('{');
 
         json.push_str("\"name\": \"");
         json.push_str(&self.name);
         json.push_str("\", ");
-        
+
         json.push_str("\"group\": \"");
         json.push_str(&format!("{}", &self.group));
         json.push_str("\", ");
-        
+
         json.push_str("\"store\": \"");
         json.push_str(&format!("{:?}", &self.preferred_store));
         json.push_str("\"");
@@ -69,8 +78,8 @@ impl Ingredient {
         Group::print_all_groups_single_line();
 
         let input = crate::read_from_stdin();
-        let new_ingredient = Ingredient::new_by_line(input.as_str()).unwrap();
-        persistency::write_ingredient(new_ingredient);
+        let new_ingredient = Ingredient::new_by_line(input.as_str());
+        persistency::write_ingredient(&new_ingredient);
     }
 
     pub fn delete_ingredient() {
@@ -139,62 +148,69 @@ mod tests {
 
     #[test]
     fn test_to_json() {
-        let ingredient = Ingredient{name: "Gurke".to_string(), group: Group::Vegetable, preferred_store: Store::Lidl};
-        assert_eq!(ingredient.to_json(), "{\"name\": \"Gurke\", \"group\": \"Gemüse\", \"store\": \"Lidl\"}");
+        let ingredient = Ingredient {
+            name: "Gurke".to_string(),
+            group: Group::Vegetable,
+            preferred_store: Store::Lidl,
+        };
+        assert_eq!(
+            ingredient.to_json(),
+            "{\"name\": \"Gurke\", \"group\": \"Gemüse\", \"store\": \"Lidl\"}"
+        );
     }
 
     #[test]
     fn test_new_by_line_empty_1() {
-        let ingredient = Ingredient::new_by_line("").unwrap();
+        let ingredient = Ingredient::new_by_line("");
         assert_eq!(ingredient.name, "");
         assert_eq!(ingredient.group, Group::Other);
     }
 
     #[test]
     fn test_new_by_line_empty_2() {
-        let ingredient = Ingredient::new_by_line(";").unwrap();
+        let ingredient = Ingredient::new_by_line(";");
         assert_eq!(ingredient.name, "");
         assert_eq!(ingredient.group, Group::Other);
     }
 
     #[test]
     fn test_new_by_line_only_name_1() {
-        let ingredient = Ingredient::new_by_line("Salami").unwrap();
+        let ingredient = Ingredient::new_by_line("Salami");
         assert_eq!(ingredient.name, "Salami");
         assert_eq!(ingredient.group, Group::Other);
     }
 
     #[test]
     fn test_new_by_line_only_name_2() {
-        let ingredient = Ingredient::new_by_line("Salami;").unwrap();
+        let ingredient = Ingredient::new_by_line("Salami;");
         assert_eq!(ingredient.name, "Salami");
         assert_eq!(ingredient.group, Group::Other);
     }
 
     #[test]
     fn test_new_by_line_only_name_3() {
-        let ingredient = Ingredient::new_by_line("Salami;;").unwrap();
+        let ingredient = Ingredient::new_by_line("Salami;;");
         assert_eq!(ingredient.name, "Salami");
         assert_eq!(ingredient.group, Group::Other);
     }
 
     #[test]
     fn test_new_by_line_only_group_1() {
-        let ingredient = Ingredient::new_by_line(";0").unwrap();
+        let ingredient = Ingredient::new_by_line(";0");
         assert_eq!(ingredient.name, "");
         assert_eq!(ingredient.group, Group::Vegetable);
     }
 
     #[test]
     fn test_new_by_line_invalid_group_1() {
-        let ingredient = Ingredient::new_by_line("Salami;-1").unwrap();
+        let ingredient = Ingredient::new_by_line("Salami;-1");
         assert_eq!(ingredient.name, "Salami");
         assert_eq!(ingredient.group, Group::Other);
     }
 
     #[test]
     fn test_new_by_line_invalid_group_2() {
-        let ingredient = Ingredient::new_by_line("Salami;asd").unwrap();
+        let ingredient = Ingredient::new_by_line("Salami;asd");
         assert_eq!(ingredient.name, "Salami");
         assert_eq!(ingredient.group, Group::Other);
     }

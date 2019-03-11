@@ -2,6 +2,7 @@ use std::collections::HashMap;
 use std::fs;
 use std::fs::OpenOptions;
 use std::io::prelude::*;
+use std::path::Path;
 use std::process;
 
 use crate::cooking_book::ingredient::Ingredient;
@@ -9,13 +10,45 @@ use crate::cooking_book::recipe::Recipe;
 use crate::cooking_book::shopping_list::ShoppingList;
 
 fn load_file(file_name: &str) -> String {
-    return fs::read_to_string(file_name).expect("Something went wrong reading the file");
+    if Path::new(file_name).is_file() {
+        return fs::read_to_string(file_name).expect("Something went wrong reading the file");
+    }
+    let mut file = OpenOptions::new().write(true).create_new(true).open(file_name).unwrap();
+
+    let mut contents = String::new();
+    file.read_to_string(&mut contents).expect("Something went wrong reading the file");;
+    return contents;
 }
 
 pub fn load_shopping_list() -> ShoppingList {
-    let content = load_file("shoppingList.csv");
+    let mut shopping_list = ShoppingList::new();
+    let mut all_ingredients = load_ingredients();
 
-    return ShoppingList::new();
+    let content = load_file("shoppingList.csv");
+    for line in content.lines() {
+        let mut values = line.split(';');
+        let name = values.next().unwrap();
+
+        if !all_ingredients.contains_key(name) {
+            let new_ingredient = Ingredient::new_by_name(name.to_string());
+            write_ingredient(&new_ingredient);
+            all_ingredients.insert(String::from(name), new_ingredient);
+        }
+
+        let amount = match values.next() {
+            Some(x) => x,
+            None => "",
+        };
+
+        let amount = match amount.parse() {
+            Ok(x) => x,
+            Err(_) => 1,
+        };
+
+        shopping_list.add_item(all_ingredients.get(name).unwrap().clone(), amount);
+    }
+
+    return shopping_list;
 }
 
 pub fn load_recipes() -> HashMap<String, Recipe> {
@@ -51,13 +84,7 @@ pub fn load_ingredients() -> HashMap<String, Ingredient> {
 
         let name = line.split(';').next().unwrap();
 
-        all_ingredients.insert(
-            String::from(name),
-            Ingredient::new_by_line(line).unwrap_or_else(|err| {
-                eprintln!("Problem restoring Ingredient: {}", err);
-                process::exit(1);
-            }),
-        );
+        all_ingredients.insert(String::from(name), Ingredient::new_by_line(line));
     }
     return all_ingredients;
 }
@@ -76,7 +103,7 @@ pub fn write_all_ingredients(all_ingredients: Vec<Ingredient>) {
     }
 }
 
-pub fn write_ingredient(new_ingredient: Ingredient) {
+pub fn write_ingredient(new_ingredient: &Ingredient) {
     let mut file = OpenOptions::new()
         .append(true)
         .open("ingredients.csv")

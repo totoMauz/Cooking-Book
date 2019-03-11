@@ -1,6 +1,4 @@
-use crate::cooking_book::group::Group;
 use crate::cooking_book::ingredient::Ingredient;
-use crate::cooking_book::store::Store;
 use crate::file_access::persistency;
 use std::collections::HashMap;
 use std::collections::HashSet;
@@ -44,21 +42,14 @@ impl Recipe {
             };
 
             if !all_ingredients.contains_key(name) {
-                let new_ingredient = Ingredient {
-                    name: String::from(name),
-                    group: Group::Other,
-                    preferred_store: Store::Any,
-                };
-                persistency::write_ingredient(new_ingredient.clone());
-                all_ingredients.insert(String::from(name), new_ingredient.clone());
+                let new_ingredient = Ingredient::new_by_name(name.to_string());
+                persistency::write_ingredient(&new_ingredient);
+                all_ingredients.insert(String::from(name), new_ingredient);
             }
 
             ingredients.insert(
                 all_ingredients.get(name).unwrap().clone(),
-                (
-                    amount,
-                    String::from(unit),
-                ),
+                (amount, String::from(unit)),
             );
         }
 
@@ -70,15 +61,15 @@ impl Recipe {
     }
 
     fn to_json(&self) -> String {
-        let mut json : String = String::new();
+        let mut json: String = String::new();
         json.push('{');
         json.push_str("\"name\": \"");
         json.push_str(&self.name);
         json.push_str("\", ");
         json.push_str("\"ingredients\": [");
 
-        for (i, (a,u)) in &self.ingredients {
-            json.push_str(Recipe::ingredient_to_json(i,a,u).as_str());
+        for (i, (a, u)) in &self.ingredients {
+            json.push_str(Recipe::ingredient_to_json(i, a, u).as_str());
         }
 
         json.push_str("]");
@@ -185,7 +176,7 @@ impl Recipe {
         let all_recipes = persistency::load_recipes();
 
         for recipe in Recipe::get_recipes_by_name(&all_recipes, input.as_str()) {
-           recipe.print_recipe(&recipe.name);
+            recipe.print_recipe(&recipe.name);
         }
     }
 
