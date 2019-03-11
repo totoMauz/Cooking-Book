@@ -35,10 +35,8 @@ pub fn load_shopping_list() -> ShoppingList {
         let mut values = line.split(';');
         let name = values.next().unwrap();
 
-        if !all_ingredients.contains_key(name) {
-            let new_ingredient = Ingredient::new_by_name(name.to_string());
-            write_single_ingredient(&new_ingredient);
-            all_ingredients.insert(String::from(name), new_ingredient);
+        if !all_ingredients.contains_key(name) {            
+            Ingredient::persist_new_ingredient(name.to_string(), &mut all_ingredients);
         }
 
         let amount = match values.next() {

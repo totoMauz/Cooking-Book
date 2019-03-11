@@ -42,9 +42,7 @@ impl Recipe {
             };
 
             if !all_ingredients.contains_key(name) {
-                let new_ingredient = Ingredient::new_by_name(name.to_string());
-                persistency::write_single_ingredient(&new_ingredient);
-                all_ingredients.insert(String::from(name), new_ingredient);
+                Ingredient::persist_new_ingredient(name.to_string(), &mut all_ingredients);
             }
 
             ingredients.insert(

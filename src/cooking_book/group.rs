@@ -73,7 +73,7 @@ mod tests {
     fn test_group_size() {
         let it = Group::get_group_iterator();
         let (size, _asd) = it.size_hint();
-        assert_eq!(size, 6);
+        assert_eq!(size, 8);
     }
 
     #[test]

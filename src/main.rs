@@ -70,6 +70,8 @@ fn main() {
                 match sub_menu.as_str() {
                     "0" => break,
                     "1" => ShoppingList::print_shopping_list(),
+                    "2" => ShoppingList::add_ingredient(),
+                    "3" => ShoppingList::remove_ingredient(),
                     &_ => continue,
                 }
             },
@@ -95,8 +97,8 @@ fn print_menu_ingredients() {
     println!("-------------------");
     println!("0: Back");
     println!("1: Show all Ingredients");
-    println!("2: Add new Ingredient");
-    println!("3: Delete Ingredient");
+    println!("2: Add Ingredient");
+    println!("3: Remove Ingredient");
     println!("-------------------");
 }
 

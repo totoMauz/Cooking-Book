@@ -1,4 +1,5 @@
 use std::cmp::Ordering;
+use std::collections::HashMap;
 use std::fmt;
 
 use crate::cooking_book::group::Group;
@@ -42,13 +43,18 @@ impl Ingredient {
         }
     }
 
-    /// New Ingredident with default group and preferred store
-    pub fn new_by_name(name: String) -> Ingredient {
+    pub fn new_by_name(name: String) -> Ingredient{
         return Ingredient {
-            name: name,
+            name: name.to_string(),
             group: Group::Other,
             preferred_store: Store::Any,
         };
+    }
+
+    pub fn persist_new_ingredient(name: String, all_ingredients: &mut HashMap<String, Ingredient>) {
+        let new_ingredient = Ingredient::new_by_name(name.to_string());
+        persistency::write_single_ingredient(&new_ingredient);
+        all_ingredients.insert(name, new_ingredient);
     }
 
     pub fn to_json(&self) -> String {
