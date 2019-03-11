@@ -29,7 +29,7 @@ impl ShoppingList {
 
         for k in keys {
             let a = shopping_list.to_buy.get(k).unwrap();
-            println!("{}: {}", k, a);
+            println!("{}:\t{}", k.name, a);
         }
     }
 }

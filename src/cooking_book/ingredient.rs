@@ -73,9 +73,11 @@ impl Ingredient {
     }
 
     pub fn save_new_ingredient() {
-        println!("Enter a name and the group like this Name;0");
+        println!("Enter a name, the group and the preferred store like this Name;0;0");
         println!("Possible groups are: ");
         Group::print_all_groups_single_line();
+        println!("Possible stores are: ");
+        Store::print_all_stores_single_line();
 
         let input = crate::read_from_stdin();
         let new_ingredient = Ingredient::new_by_line(input.as_str());

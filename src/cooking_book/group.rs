@@ -16,7 +16,7 @@ pub enum Group {
 
 impl Group {
     fn get_group_iterator() -> Iter<'static, Group> {
-        static GROUPS: [Group; 6] = [Vegetable, Fruit, Freezer, Conserved, Beverage, Other];
+        static GROUPS: [Group; 8] = [Vegetable, Fruit, Freezer, Conserved, Beverage, Baking, Spice, Other];
         GROUPS.into_iter()
     }
 

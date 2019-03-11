@@ -63,9 +63,18 @@ fn main() {
                     &_ => continue,
                 }
             },
-            "3" => ShoppingList::print_shopping_list(),
+            "3" => loop {
+                print_menu_shopping_list();
+                let sub_menu = read_from_stdin();
+
+                match sub_menu.as_str() {
+                    "0" => break,
+                    "1" => ShoppingList::print_shopping_list(),
+                    &_ => continue,
+                }
+            },
             "4" => Group::print_all_groups_multi_line(),
-            "5" => Store::print_all_store_multi_line(),
+            "5" => Store::print_all_stores_multi_line(),
             &_ => eprintln!("Unrecognized input {}", main_menu),
         }
     }
@@ -76,7 +85,7 @@ fn print_menu() {
     println!("0: Exit");
     println!("1: Ingredients");
     println!("2: Recipes");
-    println!("3: Show Shopping List");
+    println!("3: Shopping List");
     println!("4: Show all Groups");
     println!("5: Show all Stores");
     println!("-------------------");
@@ -98,5 +107,14 @@ fn print_menu_recipes() {
     println!("2: Show Recipes by Name");
     println!("3: Show Recipes by Ingredient");
     println!("4: Show Recipes by Tag");
+    println!("-------------------");
+}
+
+fn print_menu_shopping_list() {
+    println!("-------------------");
+    println!("0: Back");
+    println!("1: Show Shopping List");
+    println!("2: Add Ingredient");
+    println!("3: Delete Ingredient");
     println!("-------------------");
 }
