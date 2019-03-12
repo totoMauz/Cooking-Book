@@ -27,6 +27,7 @@ impl ShoppingList {
 
         let mut shopping_list = persistency::load_shopping_list();
         shopping_list.add_or_increment(ingredient);
+        persistency::write_shopping_list(&shopping_list);
     }
 
     fn add_or_increment(&mut self, ingredient: &Ingredient) {
@@ -51,6 +52,7 @@ impl ShoppingList {
 
         let mut shopping_list = persistency::load_shopping_list();
         shopping_list.remove(ingredient);
+        persistency::write_shopping_list(&shopping_list);
     }
 
     fn remove(&mut self, ingredient: &Ingredient) {

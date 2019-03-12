@@ -116,7 +116,7 @@ fn print_menu_shopping_list() {
     println!("-------------------");
     println!("0: Back");
     println!("1: Show Shopping List");
-    println!("2: Add Ingredient");
-    println!("3: Delete Ingredient");
+    println!("2: Add Item");
+    println!("3: Remove Item");
     println!("-------------------");
 }

@@ -35,7 +35,7 @@ pub fn load_shopping_list() -> ShoppingList {
         let mut values = line.split(';');
         let name = values.next().unwrap();
 
-        if !all_ingredients.contains_key(name) {            
+        if !all_ingredients.contains_key(name) {
             Ingredient::persist_new_ingredient(name.to_string(), &mut all_ingredients);
         }
 
@@ -53,6 +53,20 @@ pub fn load_shopping_list() -> ShoppingList {
     }
 
     return shopping_list;
+}
+
+pub fn write_shopping_list(shopping_list: &ShoppingList) {
+    let mut file = OpenOptions::new()
+        .write(true)
+        .truncate(true)
+        .open("shoppingList.csv")
+        .unwrap();
+
+    for (ingredient, amount) in &shopping_list.to_buy {
+        if let Err(e) = writeln!(file, "{};{}", ingredient.name, amount) {
+            eprintln!("Couldn't write to file: {}", e);
+        }
+    }
 }
 
 pub fn load_recipes() -> HashMap<String, Recipe> {
