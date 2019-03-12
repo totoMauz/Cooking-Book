@@ -47,7 +47,7 @@ pub fn load_shopping_list() -> ShoppingList {
         let name = values.next().unwrap();
 
         if !all_ingredients.contains_key(name) {
-            Ingredient::persist_new_ingredient(name.to_string(), &mut all_ingredients);
+            Ingredient::persist_new_ingredient(name.to_string(), &mut all_ingredients).unwrap_or_else(|e| eprintln!("{}", e));
         }
 
         let amount = match values.next() {
@@ -66,7 +66,7 @@ pub fn load_shopping_list() -> ShoppingList {
     return shopping_list;
 }
 
-pub fn write_shopping_list(shopping_list: &ShoppingList) {
+pub fn write_shopping_list(shopping_list: &ShoppingList) -> Result<(), String> {
     let file = OpenOptions::new()
         .write(true)
         .truncate(true)
@@ -76,10 +76,11 @@ pub fn write_shopping_list(shopping_list: &ShoppingList) {
         let mut file = file.unwrap();
         for (ingredient, amount) in &shopping_list.to_buy {
             if let Err(e) = writeln!(file, "{};{}", ingredient.name, amount) {
-                eprintln!("Couldn't write to file: {}", e);
+                return Err(format!("Couldn't write to file: {}", e));
             }
         }
     }
+    return Ok(());
 }
 
 pub fn load_recipes() -> HashMap<String, Recipe> {
@@ -97,10 +98,7 @@ pub fn load_recipes() -> HashMap<String, Recipe> {
 
         let name = line.split(';').next().unwrap();
 
-        all_recipes.insert(
-            String::from(name),
-            Recipe::new_by_line(line)
-        );
+        all_recipes.insert(String::from(name), Recipe::new_by_line(line));
     }
     return all_recipes;
 }
@@ -124,7 +122,7 @@ pub fn load_ingredients() -> HashMap<String, Ingredient> {
     return all_ingredients;
 }
 
-pub fn write_all_ingredients(all_ingredients: &Vec<Ingredient>) {
+pub fn write_all_ingredients(all_ingredients: &Vec<Ingredient>) -> Result<(), String> {
     let file = OpenOptions::new()
         .write(true)
         .truncate(true)
@@ -133,25 +131,29 @@ pub fn write_all_ingredients(all_ingredients: &Vec<Ingredient>) {
     if file.is_ok() {
         let mut file = file.unwrap();
         for ingredient in all_ingredients {
-            write_ingredient(&ingredient, &mut file);
+            write_ingredient(&ingredient, &mut file).unwrap_or_else(|e| eprintln!("{}", e));
         }
+        return Ok(());
     }
+    return Err(format!("Couldn't write to file: {}", file.unwrap_err()));
 }
 
-pub fn write_single_ingredient(new_ingredient: &Ingredient) {
+pub fn write_single_ingredient(new_ingredient: &Ingredient) -> Result<(), String> {
     let file = OpenOptions::new().append(true).open("ingredients.csv");
 
     if file.is_ok() {
-        write_ingredient(&new_ingredient, &mut file.unwrap());
+        return write_ingredient(&new_ingredient, &mut file.unwrap());
     }
+    return Err(format!("Couldn't open file: {}", file.unwrap_err()));
 }
 
-fn write_ingredient(ingredient: &Ingredient, file: &mut File) {
+fn write_ingredient(ingredient: &Ingredient, file: &mut File) -> Result<(), String> {
     if let Err(e) = writeln!(
         file,
         "{};{};{}",
         ingredient.name, ingredient.group as i8, ingredient.preferred_store as i8
     ) {
-        eprintln!("Couldn't write to file: {}", e);
+        return Err(format!("Couldn't write to file: {}", e));
     }
+    return Ok(());
 }

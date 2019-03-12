@@ -43,7 +43,7 @@ impl Ingredient {
         }
     }
 
-    pub fn new_by_name(name: String) -> Ingredient{
+    pub fn new_by_name(name: String) -> Ingredient {
         return Ingredient {
             name: name.to_string(),
             group: Group::Other,
@@ -51,10 +51,17 @@ impl Ingredient {
         };
     }
 
-    pub fn persist_new_ingredient(name: String, all_ingredients: &mut HashMap<String, Ingredient>) {
+    pub fn persist_new_ingredient(
+        name: String,
+        all_ingredients: &mut HashMap<String, Ingredient>,
+    ) -> Result<(), String> {
         let new_ingredient = Ingredient::new_by_name(name.to_string());
-        persistency::write_single_ingredient(&new_ingredient);
+        let result = persistency::write_single_ingredient(&new_ingredient);
+        if result.is_err() {
+            return result;
+        }
         all_ingredients.insert(name, new_ingredient);
+        return Ok(());
     }
 
     pub fn to_json(&self) -> String {
@@ -78,7 +85,7 @@ impl Ingredient {
         return json;
     }
 
-    pub fn save_new_ingredient() {
+    pub fn save_new_ingredient() -> Result<(), String> {
         println!("Enter a name, the group and the preferred store like this Name;0;0");
         println!("Possible groups are: ");
         Group::print_all_groups_single_line();
@@ -87,10 +94,10 @@ impl Ingredient {
 
         let input = crate::read_from_stdin();
         let new_ingredient = Ingredient::new_by_line(input.as_str());
-        persistency::write_single_ingredient(&new_ingredient);
+        return persistency::write_single_ingredient(&new_ingredient);
     }
 
-    pub fn delete_ingredient() {
+    pub fn delete_ingredient() -> Result<(), String> {
         println!("Enter a name of an Ingredient to delete");
         let input = crate::read_from_stdin();
 
@@ -100,10 +107,11 @@ impl Ingredient {
         match found_ingredient {
             Some(position) => {
                 all_ingredients.remove(position);
-                persistency::write_all_ingredients(&all_ingredients);
+                return persistency::write_all_ingredients(&all_ingredients);
             }
             None => eprintln!("Couldn't find Ingredient {}", input),
         }
+        return Ok(());
     }
 
     pub fn get_all_ingredients() -> Vec<Ingredient> {

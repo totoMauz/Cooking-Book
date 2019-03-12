@@ -20,14 +20,16 @@ impl ShoppingList {
         let mut all_ingredients = persistency::load_ingredients();
 
         if !all_ingredients.contains_key(&name) {
-            Ingredient::persist_new_ingredient(name.to_string(), &mut all_ingredients);
+            if Ingredient::persist_new_ingredient(name.to_string(), &mut all_ingredients).is_err() {
+                eprintln!("Couldn't persist new ingredient");
+            }
         }
 
         let ingredient: &Ingredient = all_ingredients.get(&name).unwrap();
 
         let mut shopping_list = persistency::load_shopping_list();
         shopping_list.add_or_increment(ingredient);
-        persistency::write_shopping_list(&shopping_list);
+        persistency::write_shopping_list(&shopping_list).unwrap_or_else(|e| eprintln!("{}", e));
     }
 
     fn add_or_increment(&mut self, ingredient: &Ingredient) {
@@ -45,14 +47,14 @@ impl ShoppingList {
         let mut all_ingredients = persistency::load_ingredients();
 
         if !all_ingredients.contains_key(&name) {
-            Ingredient::persist_new_ingredient(name.to_string(), &mut all_ingredients);
+            Ingredient::persist_new_ingredient(name.to_string(), &mut all_ingredients).unwrap_or_else(|e| eprintln!("{}", e));
         }
 
         let ingredient: &Ingredient = all_ingredients.get(&name).unwrap();
 
         let mut shopping_list = persistency::load_shopping_list();
         shopping_list.remove(ingredient);
-        persistency::write_shopping_list(&shopping_list);
+        persistency::write_shopping_list(&shopping_list).unwrap_or_else(|e| eprintln!("{}", e));
     }
 
     fn remove(&mut self, ingredient: &Ingredient) {
@@ -87,12 +89,17 @@ mod tests {
         assert!(shopping_list.to_buy.contains_key(&ingredient));
 
         let mut expected_count: u16 = 1;
-        assert_eq!(shopping_list.to_buy.get(&ingredient).unwrap(), &expected_count);
+        assert_eq!(
+            shopping_list.to_buy.get(&ingredient).unwrap(),
+            &expected_count
+        );
 
-        
         shopping_list.add_or_increment(&ingredient);
         expected_count += 1;
-        assert_eq!(shopping_list.to_buy.get(&ingredient).unwrap(), &expected_count);
+        assert_eq!(
+            shopping_list.to_buy.get(&ingredient).unwrap(),
+            &expected_count
+        );
     }
 
     #[test]
@@ -106,7 +113,7 @@ mod tests {
 
         shopping_list.remove(&ingredient);
         assert!(shopping_list.to_buy.is_empty());
-        
+
         shopping_list.remove(&ingredient);
         assert!(shopping_list.to_buy.is_empty());
     }

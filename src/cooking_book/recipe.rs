@@ -42,7 +42,8 @@ impl Recipe {
             };
 
             if !all_ingredients.contains_key(name) {
-                Ingredient::persist_new_ingredient(name.to_string(), &mut all_ingredients);
+                Ingredient::persist_new_ingredient(name.to_string(), &mut all_ingredients)
+                    .unwrap_or_else(|e| eprintln!("{}", e));
             }
 
             ingredients.insert(
@@ -115,7 +116,7 @@ impl Recipe {
         recipes: &'a HashMap<String, Recipe>,
         name: &str,
     ) -> Vec<&'a Recipe> {
-        let mut recipes_by_name: Vec<&'a Recipe> = Vec::with_capacity(recipes.len());
+        let mut recipes_by_name: Vec<&'a Recipe> = Vec::new();
 
         for (_n, recipe) in recipes.iter().filter(|(k, _v)| k.contains(name)) {
             recipes_by_name.push(recipe);
@@ -129,7 +130,7 @@ impl Recipe {
         ingredient_included: &Vec<String>,
         ingredient_excluding: &Vec<String>,
     ) -> Vec<&'a Recipe> {
-        let mut recipes_by_ingredient: Vec<&Recipe> = Vec::with_capacity(recipes.len());
+        let mut recipes_by_ingredient: Vec<&Recipe> = Vec::new();
 
         for (_n, recipe) in recipes {
             let mut is_included = ingredient_included.is_empty();
@@ -156,7 +157,7 @@ impl Recipe {
         recipes: &'a HashMap<String, Recipe>,
         tags: &Vec<String>,
     ) -> Vec<&'a Recipe> {
-        let mut recipes_by_tag: Vec<&Recipe> = Vec::with_capacity(recipes.len());
+        let mut recipes_by_tag: Vec<&Recipe> = Vec::new();
         for (_n, recipe) in recipes {
             for tag in &recipe.tags {
                 if tags.contains(&tag) {
