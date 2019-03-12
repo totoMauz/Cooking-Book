@@ -45,8 +45,8 @@ fn main() {
                 match sub_menu.as_str() {
                     "0" => break,
                     "1" => Ingredient::print_all_ingredients_multi_line(),
-                    "2" => Ingredient::save_new_ingredient()..unwrap_or_else(|e| eprintln!("{}", e));(),
-                    "3" => Ingredient::delete_ingredient()..unwrap_or_else(|e| eprintln!("{}", e));(),
+                    "2" => Ingredient::save_new_ingredient().unwrap_or_else(|e| eprintln!("{}", e)),
+                    "3" => Ingredient::delete_ingredient().unwrap_or_else(|e| eprintln!("{}", e)),
                     &_ => continue,
                 }
             },
