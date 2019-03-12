@@ -4,34 +4,45 @@ use std::fs::File;
 use std::fs::OpenOptions;
 use std::io::prelude::*;
 use std::path::Path;
-use std::process;
 
 use crate::cooking_book::ingredient::Ingredient;
 use crate::cooking_book::recipe::Recipe;
 use crate::cooking_book::shopping_list::ShoppingList;
 
-fn load_file(file_name: &str) -> String {
+fn load_file(file_name: &str) -> Option<String> {
     if Path::new(file_name).is_file() {
-        return fs::read_to_string(file_name).expect("Something went wrong reading the file");
+        return match fs::read_to_string(file_name) {
+            Ok(c) => Some(c),
+            Err(_) => None,
+        };
     }
-    let mut file = OpenOptions::new()
+    let file = OpenOptions::new()
         .write(true)
         .create_new(true)
-        .open(file_name)
-        .unwrap();
+        .open(file_name);
+
+    if file.is_err() {
+        return None;
+    }
 
     let mut contents = String::new();
-    file.read_to_string(&mut contents)
-        .expect("Something went wrong reading the file");;
-    return contents;
+    return match file.unwrap().read_to_string(&mut contents) {
+        Ok(_) => Some(contents),
+        Err(_) => None,
+    };
 }
 
 pub fn load_shopping_list() -> ShoppingList {
     let mut shopping_list = ShoppingList::new();
-    let mut all_ingredients = load_ingredients();
 
     let content = load_file("shoppingList.csv");
-    for line in content.lines() {
+    if content.is_none() {
+        return shopping_list;
+    }
+
+    let mut all_ingredients = load_ingredients();
+
+    for line in content.unwrap().lines() {
         let mut values = line.split(';');
         let name = values.next().unwrap();
 
@@ -56,24 +67,30 @@ pub fn load_shopping_list() -> ShoppingList {
 }
 
 pub fn write_shopping_list(shopping_list: &ShoppingList) {
-    let mut file = OpenOptions::new()
+    let file = OpenOptions::new()
         .write(true)
         .truncate(true)
-        .open("shoppingList.csv")
-        .unwrap();
+        .open("shoppingList.csv");
 
-    for (ingredient, amount) in &shopping_list.to_buy {
-        if let Err(e) = writeln!(file, "{};{}", ingredient.name, amount) {
-            eprintln!("Couldn't write to file: {}", e);
+    if file.is_ok() {
+        let mut file = file.unwrap();
+        for (ingredient, amount) in &shopping_list.to_buy {
+            if let Err(e) = writeln!(file, "{};{}", ingredient.name, amount) {
+                eprintln!("Couldn't write to file: {}", e);
+            }
         }
     }
 }
 
 pub fn load_recipes() -> HashMap<String, Recipe> {
-    let content = load_file("recipes.csv");
     let mut all_recipes: HashMap<String, Recipe> = HashMap::new();
 
-    for line in content.lines() {
+    let content = load_file("recipes.csv");
+    if content.is_none() {
+        return all_recipes;
+    }
+
+    for line in content.unwrap().lines() {
         if line.starts_with("#") {
             continue;
         }
@@ -82,20 +99,21 @@ pub fn load_recipes() -> HashMap<String, Recipe> {
 
         all_recipes.insert(
             String::from(name),
-            Recipe::new_by_line(line).unwrap_or_else(|err| {
-                eprintln!("Problem restoring Recipe: {}", err);
-                process::exit(1);
-            }),
+            Recipe::new_by_line(line)
         );
     }
     return all_recipes;
 }
 
 pub fn load_ingredients() -> HashMap<String, Ingredient> {
-    let content = load_file("ingredients.csv");
     let mut all_ingredients: HashMap<String, Ingredient> = HashMap::new();
 
-    for line in content.lines() {
+    let content = load_file("ingredients.csv");
+    if content.is_none() {
+        return all_ingredients;
+    }
+
+    for line in content.unwrap().lines() {
         if line.starts_with("#") {
             continue;
         }
@@ -107,27 +125,25 @@ pub fn load_ingredients() -> HashMap<String, Ingredient> {
 }
 
 pub fn write_all_ingredients(all_ingredients: &Vec<Ingredient>) {
-    let mut file = OpenOptions::new()
+    let file = OpenOptions::new()
         .write(true)
         .truncate(true)
-        .open("ingredients.csv")
-        .unwrap();
+        .open("ingredients.csv");
 
-    for ingredient in all_ingredients {
-        write_ingredient(&ingredient, &mut file);
+    if file.is_ok() {
+        let mut file = file.unwrap();
+        for ingredient in all_ingredients {
+            write_ingredient(&ingredient, &mut file);
+        }
     }
 }
 
 pub fn write_single_ingredient(new_ingredient: &Ingredient) {
-    let mut file = OpenOptions::new()
-        .append(true)
-        .open("ingredients.csv")
-        .unwrap_or_else(|err| {
-            eprintln!("Couldn't open file {}", err);
-            process::exit(1);
-        });
+    let file = OpenOptions::new().append(true).open("ingredients.csv");
 
-    write_ingredient(&new_ingredient, &mut file);
+    if file.is_ok() {
+        write_ingredient(&new_ingredient, &mut file.unwrap());
+    }
 }
 
 fn write_ingredient(ingredient: &Ingredient, file: &mut File) {

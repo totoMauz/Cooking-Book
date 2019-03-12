@@ -11,7 +11,7 @@ pub struct Recipe {
 }
 
 impl Recipe {
-    pub fn new_by_line(line: &str) -> Result<Recipe, &'static str> {
+    pub fn new_by_line(line: &str) -> Recipe {
         let mut values = line.split(';');
         let name = String::from(values.next().unwrap());
 
@@ -51,11 +51,11 @@ impl Recipe {
             );
         }
 
-        Ok(Recipe {
+        return Recipe {
             name,
             ingredients,
             tags,
-        })
+        };
     }
 
     fn to_json(&self) -> String {
