@@ -1,4 +1,8 @@
+use std::fs::File;
 use std::io;
+use std::io::prelude::*;
+use std::net::TcpListener;
+use std::net::TcpStream;
 
 mod cooking_book {
     pub mod group;
@@ -11,12 +15,17 @@ mod cooking_book {
 mod file_access {
     pub mod persistency;
 }
-
+use crate::file_access::persistency;
 use crate::cooking_book::group::Group;
 use crate::cooking_book::ingredient::Ingredient;
 use crate::cooking_book::recipe::Recipe;
 use crate::cooking_book::shopping_list::ShoppingList;
 use crate::cooking_book::store::Store;
+
+fn main() {
+    web();
+    cli();
+}
 
 /// Read from stdin
 ///
@@ -31,7 +40,46 @@ pub fn read_from_stdin() -> String {
     return input.trim().to_string();
 }
 
-fn main() {
+fn web() {
+    let listener = TcpListener::bind("127.0.0.1:7878").unwrap();
+
+    for stream in listener.incoming() {
+        let stream = stream.unwrap();
+
+        handle_connection(stream);
+    }
+}
+
+fn handle_connection(mut stream: TcpStream) {
+    let mut buffer = [0; 512];
+    stream.read(&mut buffer).unwrap();
+
+    let get = b"GET / HTTP/1.1\r\n";
+    let get_shopping_list = b"GET /getShoppingList HTTP/1.1\r\n";
+
+    let (status_line, filename) = if buffer.starts_with(get) || buffer.starts_with(get_shopping_list) {
+        ("HTTP/1.1 200 OK\r\n\r\n", "web/index.html")
+    } else {
+        ("HTTP/1.1 404 NOT FOUND\r\n\r\n", "web/404.html")
+    };
+
+    let mut file = File::open(filename).unwrap();
+    let mut contents = String::new();
+
+    if buffer.starts_with(get_shopping_list) {
+        let shopping_list = persistency::load_shopping_list();
+        contents = shopping_list.to_json();
+    } else {
+        file.read_to_string(&mut contents).unwrap();
+    }
+
+    let response = format!("{}{}", status_line, contents);
+
+    stream.write(response.as_bytes()).unwrap();
+    stream.flush().unwrap();
+}
+
+fn cli() {
     loop {
         print_menu();
         let main_menu = read_from_stdin();
