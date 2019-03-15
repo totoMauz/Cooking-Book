@@ -35,7 +35,7 @@ fn load_file(file_name: &str) -> Option<String> {
 pub fn load_shopping_list() -> ShoppingList {
     let mut shopping_list = ShoppingList::new();
 
-    let content = load_file("shoppingList.csv");
+    let content = load_file("persistency/shoppingList.csv");
     if content.is_none() {
         return shopping_list;
     }
@@ -70,7 +70,7 @@ pub fn write_shopping_list(shopping_list: &ShoppingList) -> Result<(), String> {
     let file = OpenOptions::new()
         .write(true)
         .truncate(true)
-        .open("shoppingList.csv");
+        .open("persistency/shoppingList.csv");
 
     if file.is_ok() {
         let mut file = file.unwrap();
@@ -86,7 +86,7 @@ pub fn write_shopping_list(shopping_list: &ShoppingList) -> Result<(), String> {
 pub fn load_recipes() -> HashMap<String, Recipe> {
     let mut all_recipes: HashMap<String, Recipe> = HashMap::new();
 
-    let content = load_file("recipes.csv");
+    let content = load_file("persistency/recipes.csv");
     if content.is_none() {
         return all_recipes;
     }
@@ -106,7 +106,7 @@ pub fn load_recipes() -> HashMap<String, Recipe> {
 pub fn load_ingredients() -> HashMap<String, Ingredient> {
     let mut all_ingredients: HashMap<String, Ingredient> = HashMap::new();
 
-    let content = load_file("ingredients.csv");
+    let content = load_file("persistency/ingredients.csv");
     if content.is_none() {
         return all_ingredients;
     }
@@ -126,7 +126,7 @@ pub fn write_all_ingredients(all_ingredients: &Vec<Ingredient>) -> Result<(), St
     let file = OpenOptions::new()
         .write(true)
         .truncate(true)
-        .open("ingredients.csv");
+        .open("persistency/ingredients.csv");
 
     if file.is_ok() {
         let mut file = file.unwrap();

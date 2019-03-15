@@ -8,11 +8,6 @@
     background-color: slategrey;
   }
 
-  .header input[type="text"] {
-    width: 30rem;
-    font-size: 4rem;
-  }
-
   .content h2 {
     margin-top: 1rem;
     margin-bottom: 0rem;
@@ -177,9 +172,9 @@
   function addIngredient() {
     const oIngredient = document.getElementById("newIngredient");
     const sInput = oIngredient.value;
-    //return putData("putIngredient", `{"name": "${sInput}"}`)
-    return putData("putIngredient", sInput)
-      .then((shoppingList) => { cleanContent(); return shoppingList; })
+
+    return cleanContent()
+      .then(() => { return putData("putIngredient", sInput); })
       .then((shoppingList) => { displayShoppingList(shoppingList); })
       .then(() => { return getAllIngredients(); });
   }
