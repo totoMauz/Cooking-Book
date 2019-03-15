@@ -15,12 +15,12 @@ mod cooking_book {
 mod file_access {
     pub mod persistency;
 }
-use crate::file_access::persistency;
 use crate::cooking_book::group::Group;
 use crate::cooking_book::ingredient::Ingredient;
 use crate::cooking_book::recipe::Recipe;
 use crate::cooking_book::shopping_list::ShoppingList;
 use crate::cooking_book::store::Store;
+use crate::file_access::persistency;
 
 fn main() {
     web();
@@ -56,8 +56,14 @@ fn handle_connection(mut stream: TcpStream) {
 
     let get = b"GET / HTTP/1.1\r\n";
     let get_shopping_list = b"GET /getShoppingList HTTP/1.1\r\n";
+    let get_ingredients = b"GET /getIngredients HTTP/1.1\r\n";
+    let put_ingredient = b"PUT /putIngredient?";
 
-    let (status_line, filename) = if buffer.starts_with(get) || buffer.starts_with(get_shopping_list) {
+    let (mut status_line, filename) = if buffer.starts_with(get)
+        || buffer.starts_with(get_shopping_list)
+        || buffer.starts_with(get_ingredients)
+        || buffer.starts_with(put_ingredient)
+    {
         ("HTTP/1.1 200 OK\r\n\r\n", "web/index.html")
     } else {
         ("HTTP/1.1 404 NOT FOUND\r\n\r\n", "web/404.html")
@@ -68,6 +74,36 @@ fn handle_connection(mut stream: TcpStream) {
 
     if buffer.starts_with(get_shopping_list) {
         let shopping_list = persistency::load_shopping_list();
+        contents = shopping_list.to_json();
+    } else if buffer.starts_with(get_ingredients) {
+        let ingredients = persistency::load_ingredients();
+        contents = Ingredient::all_to_json(&ingredients);
+    } else if buffer.starts_with(put_ingredient) {
+        let mut ingredients = persistency::load_ingredients();
+
+        let mut request: String = String::from_utf8_lossy(&buffer[..]).to_string();
+
+        let start = request.find("=").unwrap();
+        let mut payload: String = request.drain(start + 1..).collect();
+
+        let start = payload.find(" ").unwrap();
+        let payload: String = payload.drain(..start).collect();
+
+        if !ingredients.contains_key(&payload) {
+            Ingredient::persist_new_ingredient(payload.to_string(), &mut ingredients)
+                .unwrap_or_else(|e| {
+                    contents = e;
+                    status_line = "HTTP/1.1 500 OK\r\n\r\n";
+                });
+        }
+        let ingredient = ingredients.get(&payload).unwrap();
+        let mut shopping_list = persistency::load_shopping_list();
+        shopping_list.add_or_increment(&ingredient);
+        persistency::write_shopping_list(&shopping_list).unwrap_or_else(|e| {
+            contents = e;
+            status_line = "HTTP/1.1 500 OK\r\n\r\n";
+        });
+
         contents = shopping_list.to_json();
     } else {
         file.read_to_string(&mut contents).unwrap();

@@ -32,7 +32,7 @@ impl ShoppingList {
         persistency::write_shopping_list(&shopping_list).unwrap_or_else(|e| eprintln!("{}", e));
     }
 
-    fn add_or_increment(&mut self, ingredient: &Ingredient) {
+    pub fn add_or_increment(&mut self, ingredient: &Ingredient) {
         let amount = self.to_buy.entry(ingredient.clone()).or_insert(0);
         *amount += 1;
     }

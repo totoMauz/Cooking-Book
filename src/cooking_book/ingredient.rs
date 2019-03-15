@@ -64,6 +64,24 @@ impl Ingredient {
         return Ok(());
     }
 
+    pub fn all_to_json(all_ingredients: &HashMap<String, Ingredient>) -> String {
+        let mut json: String = String::new();
+        json.push('[');
+
+        let mut is_first: bool = true;
+        for (_k, i) in all_ingredients {
+            if !is_first {
+                json.push_str(", ");
+            }
+
+            json.push_str(&i.to_json());
+            is_first = false;
+        }
+
+        json.push(']');
+        return json;
+    }
+
     pub fn to_json(&self) -> String {
         let mut json: String = String::new();
         json.push('{');

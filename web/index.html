@@ -8,6 +8,11 @@
     background-color: slategrey;
   }
 
+  .header input[type="text"] {
+    width: 30rem;
+    font-size: 4rem;
+  }
+
   .content h2 {
     margin-top: 1rem;
     margin-bottom: 0rem;
@@ -45,11 +50,20 @@
   <title>Einkaufsliste</title>
 </head>
 
-<body onload="getShoppingList()">
+<body onload="getShoppingList();getAllIngredients();">
+  <section class="header" id="header">
+    <h1>Einkaufsliste</h1>
+  </section>
+  <section id="control" id="control">
+    <input type="text" id="newIngredient" list="ingredients" />
+    <datalist id="ingredients"></datalist>
+  </section>
+  <button onclick="addIngredient()">Hinzufügen</button>
   <section class="content" id="content"></section>
 </body>
 
 <script language="javascript">
+
   function cleanContent() {
     return Promise.resolve().then(() => {
       const oContent = document.getElementById("content");
@@ -59,7 +73,16 @@
     });
   }
 
-  function queryShoppingList() {
+  function cleanOptions() {
+    return Promise.resolve().then(() => {
+      const oIngredients = document.getElementById("ingredients");
+      while (oIngredients.children.length > 0) {
+        oIngredients.children[0].remove();
+      }
+    });
+  }
+
+  function putData(sUrl, sData) {
     return new Promise((resolve, reject) => {
       const xmlHttp = new XMLHttpRequest();
       xmlHttp.onreadystatechange = function () {
@@ -72,52 +95,68 @@
           }
         }
       }
-      xmlHttp.open("GET", "/getShoppingList", true);
+      xmlHttp.open("PUT", `${sUrl}?name=${sData}`, true);
       xmlHttp.send(null);
     });
   }
 
-  function getShoppingList() {
-    const oHeader = document.createElement('h1');
+  function getQuery(sUrl) {
+    return new Promise((resolve, reject) => {
+      const xmlHttp = new XMLHttpRequest();
+      xmlHttp.onreadystatechange = function () {
+        if (xmlHttp.readyState == 4) {
+          if (xmlHttp.status == 200) {
+            resolve(JSON.parse(xmlHttp.response));
+          }
+          else {
+            reject(xmlHttp.responseText);
+          }
+        }
+      }
+      xmlHttp.open("GET", sUrl, true);
+      xmlHttp.send(null);
+    });
+  }
+
+  function getAllIngredients() {
+    return cleanOptions()
+      .then(() => { return getQuery("/getIngredients") })
+      .then((ingredients) => {
+        const oIngredients = document.getElementById("ingredients");
+        ingredients.forEach((i) => {
+          const oOption = document.createElement('option');
+          oOption.value = i.name;
+          oIngredients.appendChild(oOption);
+        });
+      });
+  }
+
+  function displayShoppingList(shoppingList) {
     const oContent = document.getElementById("content");
     let oNewContent = [];
+    return Promise.resolve().then(() => {
+      Object.keys(shoppingList).forEach((category) => {
+        const oSubHeader = document.createElement('h2');
+        oSubHeader.innerText = category;
+        oNewContent.push(oSubHeader);
 
-    return cleanContent()
-      .then(() => { return queryShoppingList() })
-      .then((shoppingList) => {
-        oHeader.innerText = "Einkaufsliste";
+        const oList = document.createElement('ul');
+        oNewContent.push(oList);
 
-        Object.keys(shoppingList).forEach((category) => {
-          const oSubHeader = document.createElement('h2');
-          oSubHeader.innerText = category;
-          oNewContent.push(oSubHeader);
-
-          const oList = document.createElement('ul');
-          oNewContent.push(oList);
-
-          shoppingList[category].forEach((item) => {
-            const oItem = document.createElement('li');
-            oItem.appendChild(document.createTextNode(item.name));
-            if (item.amount) {
-              oItem.appendChild(document.createTextNode(`: ${item.amount}`));
-            }
-            oList.appendChild(oItem);
-          });
-
+        shoppingList[category].forEach((item) => {
+          const oItem = document.createElement('li');
+          oItem.appendChild(document.createTextNode(item.name));
+          if (item.amount) {
+            oItem.appendChild(document.createTextNode(`: ${item.amount}`));
+          }
+          oList.appendChild(oItem);
         });
-
-
-
-        "{\"Gemüse\": [{\"name\": \"Gurke\"}], \"Obst\": [{\"name\": \"Banane\"}]}"
-
-
-
-      }).catch((err) => {
-        oHeader.innerText = "Fehler";
+      });
+    })
+      .catch((err) => {
         oNewContent = document.createElement('span');
         oNewContent.innerText = err;
       }).finally(() => {
-        oContent.appendChild(oHeader);
         if (Array.isArray(oNewContent)) {
           oNewContent.forEach((newContent) => {
             oContent.appendChild(newContent);
@@ -128,6 +167,23 @@
         }
       });
   }
+
+  function getShoppingList() {
+    return cleanContent()
+      .then(() => { return getQuery("/getShoppingList"); })
+      .then((shoppingList) => { return displayShoppingList(shoppingList); })
+  }
+
+  function addIngredient() {
+    const oIngredient = document.getElementById("newIngredient");
+    const sInput = oIngredient.value;
+    //return putData("putIngredient", `{"name": "${sInput}"}`)
+    return putData("putIngredient", sInput)
+      .then((shoppingList) => { cleanContent(); return shoppingList; })
+      .then((shoppingList) => { displayShoppingList(shoppingList); })
+      .then(() => { return getAllIngredients(); });
+  }
+
 </script>
 
 </html>
