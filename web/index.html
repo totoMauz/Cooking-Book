@@ -140,9 +140,12 @@
 
         shoppingList[category].forEach((item) => {
           const oItem = document.createElement('li');
-          oItem.appendChild(document.createTextNode(item.name));
+          oItem.setAttribute("id", item.name);
+
           if (item.amount) {
-            oItem.appendChild(document.createTextNode(`: ${item.amount}`));
+            oItem.appendChild(document.createTextNode(`${item.name}: ${item.amount}`));
+          } else {
+            oItem.appendChild(document.createTextNode(item.name));
           }
           oList.appendChild(oItem);
         });
