@@ -58,7 +58,7 @@ impl ShoppingList {
         persistency::write_shopping_list(&shopping_list).unwrap_or_else(|e| eprintln!("{}", e));
     }
 
-    fn remove(&mut self, ingredient: &Ingredient) {
+    pub fn remove(&mut self, ingredient: &Ingredient) {
         self.to_buy.remove(&ingredient);
     }
 

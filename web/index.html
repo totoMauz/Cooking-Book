@@ -77,10 +77,28 @@
     });
   }
 
+  function deleteData(sUrl, sData) {
+    return new Promise((resolve, reject) => {
+      const xmlHttp = new XMLHttpRequest();
+      xmlHttp.onreadystatechange = () => {
+        if (xmlHttp.readyState == 4) {
+          if (xmlHttp.status == 200) {
+            resolve(JSON.parse(xmlHttp.response));
+          }
+          else {
+            reject(xmlHttp.responseText);
+          }
+        }
+      }
+      xmlHttp.open("DELETE", `${sUrl}?name=${sData}`, true);
+      xmlHttp.send(null);
+    });
+  }
+
   function putData(sUrl, sData) {
     return new Promise((resolve, reject) => {
       const xmlHttp = new XMLHttpRequest();
-      xmlHttp.onreadystatechange = function () {
+      xmlHttp.onreadystatechange = () => {
         if (xmlHttp.readyState == 4) {
           if (xmlHttp.status == 200) {
             resolve(JSON.parse(xmlHttp.response));
@@ -98,7 +116,7 @@
   function getQuery(sUrl) {
     return new Promise((resolve, reject) => {
       const xmlHttp = new XMLHttpRequest();
-      xmlHttp.onreadystatechange = function () {
+      xmlHttp.onreadystatechange = () => {
         if (xmlHttp.readyState == 4) {
           if (xmlHttp.status == 200) {
             resolve(JSON.parse(xmlHttp.response));
@@ -115,7 +133,7 @@
 
   function getAllIngredients() {
     return cleanOptions()
-      .then(() => { return getQuery("/getIngredients") })
+      .then(() => { return getQuery("/ingredient") })
       .then((ingredients) => {
         const oIngredients = document.getElementById("ingredients");
         ingredients.forEach((i) => {
@@ -140,7 +158,7 @@
 
         shoppingList[category].forEach((item) => {
           const oItem = document.createElement('li');
-          oItem.setAttribute("id", item.name);
+          oItem.setAttribute("id", `li_${item.name}`);
 
           if (item.amount) {
             oItem.appendChild(document.createTextNode(`${item.name}: ${item.amount}`));
@@ -148,6 +166,12 @@
             oItem.appendChild(document.createTextNode(item.name));
           }
           oList.appendChild(oItem);
+
+          const oButton = document.createElement('button');
+          oButton.setAttribute("id", item.name);
+          oButton.innerText = 'X';
+          oButton.onclick = removeIngredient.bind(this, item.name);
+          oItem.appendChild(oButton);
         });
       });
     })
@@ -168,7 +192,7 @@
 
   function getShoppingList() {
     return cleanContent()
-      .then(() => { return getQuery("/getShoppingList"); })
+      .then(() => { return getQuery("/shopping_list"); })
       .then((shoppingList) => { return displayShoppingList(shoppingList); })
   }
 
@@ -177,7 +201,14 @@
     const sInput = oIngredient.value;
 
     return cleanContent()
-      .then(() => { return putData("putIngredient", sInput); })
+      .then(() => { return putData("ingredient", sInput); })
+      .then((shoppingList) => { displayShoppingList(shoppingList); })
+      .then(() => { return getAllIngredients(); });
+  }
+
+  function removeIngredient(sIngredient) {
+    return cleanContent()
+      .then(() => { return deleteData("ingredient", sIngredient); })
       .then((shoppingList) => { displayShoppingList(shoppingList); })
       .then(() => { return getAllIngredients(); });
   }
