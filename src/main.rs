@@ -1,8 +1,11 @@
-use std::fs::File;
+#![feature(proc_macro_hygiene, decl_macro)]
+
+#[macro_use] extern crate rocket;
+extern crate rocket_contrib;
+
 use std::io;
-use std::io::prelude::*;
-use std::net::TcpListener;
-use std::net::TcpStream;
+
+use rocket_contrib::serve::StaticFiles;
 
 mod cooking_book {
     pub mod group;
@@ -15,6 +18,7 @@ mod cooking_book {
 mod file_access {
     pub mod persistency;
 }
+
 use crate::cooking_book::group::Group;
 use crate::cooking_book::ingredient::Ingredient;
 use crate::cooking_book::recipe::Recipe;
@@ -22,8 +26,49 @@ use crate::cooking_book::shopping_list::ShoppingList;
 use crate::cooking_book::store::Store;
 use crate::file_access::persistency;
 
+#[get("/ingredient")]
+fn get_ingredient() -> String {
+    let ingredients = persistency::load_ingredients();
+    return Ingredient::all_to_json(&ingredients);
+}
+
+#[put("/ingredient/<name>")]
+fn put_ingredient(name: String) -> String {
+    let mut ingredients = persistency::load_ingredients();
+
+    if !ingredients.contains_key(&name) {
+        Ingredient::persist_new_ingredient(&name, &mut ingredients);
+    }
+    let ingredient = ingredients.get(&name).unwrap();
+    let mut shopping_list = persistency::load_shopping_list();
+    shopping_list.add_and_save(&ingredient);
+
+    return shopping_list.to_json();
+}
+
+#[delete("/ingredient/<name>")]
+fn delete_ingredient(name: String) -> String {
+    let ingredients = persistency::load_ingredients();
+
+    let mut shopping_list = persistency::load_shopping_list();
+    if ingredients.contains_key(&name) {
+        let ingredient = ingredients.get(&name).unwrap();
+        shopping_list.remove_and_save(&ingredient);
+    }
+    return shopping_list.to_json();
+}
+
+#[get("/shopping_list")]
+fn get_shopping_list() -> String {
+    let shopping_list = persistency::load_shopping_list();
+    return shopping_list.to_json();
+}
+
 fn main() {
-    web();
+    rocket::ignite()
+        .mount("/", routes![get_ingredient, put_ingredient, delete_ingredient, get_shopping_list])
+        .mount("/", StaticFiles::from("web"))
+        .launch();
     cli();
 }
 
@@ -38,104 +83,6 @@ pub fn read_from_stdin() -> String {
         .read_line(&mut input)
         .expect("Couldn't read from stdin");
     return input.trim().to_string();
-}
-
-fn web() {
-    let listener = TcpListener::bind("127.0.0.1:7878").unwrap();
-
-    for stream in listener.incoming() {
-        let stream = stream.unwrap();
-
-        handle_connection(stream);
-    }
-}
-
-fn get_payload(request: &mut String) -> String {
-    let start = request.find("=").unwrap();
-    let mut payload: String = request.drain(start + 1..).collect();
-
-    let start = payload.find(" ").unwrap();
-    let payload: String = payload.drain(..start).collect();
-
-    return payload.replace("%20", " ");
-}
-
-fn handle_connection(mut stream: TcpStream) {
-    let mut buffer = [0; 512];
-    stream.read(&mut buffer).unwrap();
-
-    let get = b"GET / HTTP/1.1\r\n";
-    let get_shopping_list = b"GET /shopping_list HTTP/1.1\r\n";
-    let get_ingredients = b"GET /ingredient HTTP/1.1\r\n";
-    let put_ingredient = b"PUT /ingredient?";
-    let delete_ingredient = b"DELETE /ingredient?";
-
-    let (mut status_line, filename) = if buffer.starts_with(get)
-        || buffer.starts_with(get_shopping_list)
-        || buffer.starts_with(get_ingredients)
-        || buffer.starts_with(put_ingredient)
-        || buffer.starts_with(delete_ingredient)
-    {
-        ("HTTP/1.1 200 OK\r\n\r\n", "web/index.html")
-    } else {
-        ("HTTP/1.1 404 NOT FOUND\r\n\r\n", "web/404.html")
-    };
-
-    let mut file = File::open(filename).unwrap();
-    let mut contents = String::new();
-
-    if buffer.starts_with(get_shopping_list) {
-        let shopping_list = persistency::load_shopping_list();
-        contents = shopping_list.to_json();
-    } else if buffer.starts_with(get_ingredients) {
-        let ingredients = persistency::load_ingredients();
-        contents = Ingredient::all_to_json(&ingredients);
-    } else if buffer.starts_with(delete_ingredient) {
-        let ingredients = persistency::load_ingredients();
-
-        let mut request: String = String::from_utf8_lossy(&buffer[..]).to_string();
-        let payload = get_payload(&mut request);
-
-        let mut shopping_list = persistency::load_shopping_list();
-        if ingredients.contains_key(&payload) {
-            let ingredient = ingredients.get(&payload).unwrap();
-            shopping_list
-                .remove_and_save(&ingredient)
-                .unwrap_or_else(|e| {
-                    contents = e;
-                    status_line = "HTTP/1.1 500 OK\r\n\r\n";
-                });
-        }
-        contents = shopping_list.to_json();
-    } else if buffer.starts_with(put_ingredient) {
-        let mut ingredients = persistency::load_ingredients();
-
-        let mut request: String = String::from_utf8_lossy(&buffer[..]).to_string();
-        let payload = get_payload(&mut request);
-
-        if !ingredients.contains_key(&payload) {
-            Ingredient::persist_new_ingredient(payload.to_string(), &mut ingredients)
-                .unwrap_or_else(|e| {
-                    contents = e;
-                    status_line = "HTTP/1.1 500 OK\r\n\r\n";
-                });
-        }
-        let ingredient = ingredients.get(&payload).unwrap();
-        let mut shopping_list = persistency::load_shopping_list();
-        shopping_list.add_and_save(&ingredient).unwrap_or_else(|e| {
-            contents = e;
-            status_line = "HTTP/1.1 500 OK\r\n\r\n";
-        });
-
-        contents = shopping_list.to_json();
-    } else {
-        file.read_to_string(&mut contents).unwrap();
-    }
-
-    let response = format!("{}{}", status_line, contents);
-
-    stream.write(response.as_bytes()).unwrap();
-    stream.flush().unwrap();
 }
 
 fn cli() {

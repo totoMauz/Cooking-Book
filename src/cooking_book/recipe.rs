@@ -26,7 +26,7 @@ impl Recipe {
             }
 
             let mut ingre_amount = s.split(',');
-            let name = ingre_amount.next().unwrap();
+            let name = ingre_amount.next().unwrap().to_string();
 
             let amount = match ingre_amount.next() {
                 Some(amount) => amount,
@@ -41,13 +41,13 @@ impl Recipe {
                 None => "",
             };
 
-            if !all_ingredients.contains_key(name) {
-                Ingredient::persist_new_ingredient(name.to_string(), &mut all_ingredients)
+            if !all_ingredients.contains_key(&name) {
+                Ingredient::persist_new_ingredient(&name, &mut all_ingredients)
                     .unwrap_or_else(|e| eprintln!("{}", e));
             }
 
             ingredients.insert(
-                all_ingredients.get(name).unwrap().clone(),
+                all_ingredients.get(&name).unwrap().clone(),
                 (amount, String::from(unit)),
             );
         }

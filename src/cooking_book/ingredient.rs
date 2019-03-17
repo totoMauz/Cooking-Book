@@ -52,7 +52,7 @@ impl Ingredient {
     }
 
     pub fn persist_new_ingredient(
-        name: String,
+        name: &String,
         all_ingredients: &mut HashMap<String, Ingredient>,
     ) -> Result<(), String> {
         let new_ingredient = Ingredient::new_by_name(name.to_string());
@@ -60,7 +60,7 @@ impl Ingredient {
         if result.is_err() {
             return result;
         }
-        all_ingredients.insert(name, new_ingredient);
+        all_ingredients.insert(name.to_string(), new_ingredient);
         return Ok(());
     }
 

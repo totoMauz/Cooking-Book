@@ -5,3 +5,5 @@ authors = ["Toto <torsten.quast1@gmail.com>"]
 edition = "2018"
 
 [dependencies]
+rocket = "0.4.0"
+rocket_contrib = "0.4.0"

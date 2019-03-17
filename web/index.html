@@ -90,7 +90,7 @@
           }
         }
       }
-      xmlHttp.open("DELETE", `${sUrl}?name=${sData}`, true);
+      xmlHttp.open("DELETE", `${sUrl}/${sData}`, true);
       xmlHttp.send(null);
     });
   }
@@ -108,7 +108,7 @@
           }
         }
       }
-      xmlHttp.open("PUT", `${sUrl}?name=${sData}`, true);
+      xmlHttp.open("PUT", `${sUrl}/${sData}`, true);
       xmlHttp.send(null);
     });
   }

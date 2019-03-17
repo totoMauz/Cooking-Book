@@ -20,7 +20,7 @@ impl ShoppingList {
         let mut all_ingredients = persistency::load_ingredients();
 
         if !all_ingredients.contains_key(&name) {
-            if Ingredient::persist_new_ingredient(name.to_string(), &mut all_ingredients).is_err() {
+            if Ingredient::persist_new_ingredient(&name, &mut all_ingredients).is_err() {
                 eprintln!("Couldn't persist new ingredient");
             }
         }
@@ -51,7 +51,7 @@ impl ShoppingList {
         let mut all_ingredients = persistency::load_ingredients();
 
         if !all_ingredients.contains_key(&name) {
-            Ingredient::persist_new_ingredient(name.to_string(), &mut all_ingredients)
+            Ingredient::persist_new_ingredient(&name, &mut all_ingredients)
                 .unwrap_or_else(|e| eprintln!("{}", e));
         }
 

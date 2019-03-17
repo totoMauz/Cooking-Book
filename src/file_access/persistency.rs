@@ -44,10 +44,10 @@ pub fn load_shopping_list() -> ShoppingList {
 
     for line in content.unwrap().lines() {
         let mut values = line.split(';');
-        let name = values.next().unwrap();
+        let name = values.next().unwrap().to_string();
 
-        if !all_ingredients.contains_key(name) {
-            Ingredient::persist_new_ingredient(name.to_string(), &mut all_ingredients).unwrap_or_else(|e| eprintln!("{}", e));
+        if !all_ingredients.contains_key(&name) {
+            Ingredient::persist_new_ingredient(&name, &mut all_ingredients).unwrap_or_else(|e| eprintln!("{}", e));
         }
 
         let amount = match values.next() {
@@ -60,7 +60,7 @@ pub fn load_shopping_list() -> ShoppingList {
             Err(_) => 1,
         };
 
-        shopping_list.add_item(all_ingredients.get(name).unwrap().clone(), amount);
+        shopping_list.add_item(all_ingredients.get(&name).unwrap().clone(), amount);
     }
 
     return shopping_list;
