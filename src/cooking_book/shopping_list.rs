@@ -3,6 +3,7 @@ use std::collections::HashMap;
 use crate::file_access::persistency;
 use crate::Ingredient;
 
+/// The shopping list
 #[derive(PartialEq, Eq)]
 pub struct ShoppingList {
     pub to_buy: HashMap<Ingredient, u16>,
@@ -31,6 +32,8 @@ impl ShoppingList {
         shopping_list.add_and_save(ingredient).unwrap_or_else(|e| eprintln!("{}", e));
     }
 
+    /// Add an item to the shopping list. If the item is already present, the number to buy will be incremented.
+    /// The updated shopping list will be persisted.
     pub fn add_and_save(&mut self, ingredient : &Ingredient) -> Result<(), String> {
         self.add_or_increment(ingredient);
         return persistency::write_shopping_list(&self);
@@ -41,6 +44,7 @@ impl ShoppingList {
         *amount += 1;
     }
 
+    /// Add an item with amount to the shopping list.
     pub fn add_item(&mut self, ingredient: Ingredient, amount: u16) {
         self.to_buy.insert(ingredient, amount);
     }
@@ -61,6 +65,11 @@ impl ShoppingList {
         shopping_list.remove_and_save(ingredient).unwrap_or_else(|e| eprintln!("{}", e));
     }
 
+    /// Remove an item from the shopping list. The updated shopping list will be persisted.
+    /// 
+    /// #Arguments
+    /// 
+    /// * `ingredient` The ingredient to remove from the list.
     pub fn remove_and_save(&mut self, ingredient: &Ingredient) -> Result<(), String> {
         self.remove(ingredient);
         return persistency::write_shopping_list(&self);
@@ -82,6 +91,7 @@ impl ShoppingList {
         }
     }
 
+    /// Exports the shopping list to json.
     pub fn to_json(&self) -> String {
         let mut keys: Vec<&Ingredient> = self.to_buy.keys().collect();
         keys.sort();

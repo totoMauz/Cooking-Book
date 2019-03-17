@@ -32,6 +32,7 @@ fn load_file(file_name: &str) -> Option<String> {
     };
 }
 
+/// Returns the shopping list.
 pub fn load_shopping_list() -> ShoppingList {
     let mut shopping_list = ShoppingList::new();
 
@@ -66,6 +67,11 @@ pub fn load_shopping_list() -> ShoppingList {
     return shopping_list;
 }
 
+/// Writes the shopping list.
+/// 
+/// #Arguments
+/// 
+/// * `shopping_list` The shopping list to write.
 pub fn write_shopping_list(shopping_list: &ShoppingList) -> Result<(), String> {
     let file = OpenOptions::new()
         .write(true)
@@ -83,6 +89,7 @@ pub fn write_shopping_list(shopping_list: &ShoppingList) -> Result<(), String> {
     return Ok(());
 }
 
+/// Returns all recipes.
 pub fn load_recipes() -> HashMap<String, Recipe> {
     let mut all_recipes: HashMap<String, Recipe> = HashMap::new();
 
@@ -103,6 +110,7 @@ pub fn load_recipes() -> HashMap<String, Recipe> {
     return all_recipes;
 }
 
+/// Returns all ingredients.
 pub fn load_ingredients() -> HashMap<String, Ingredient> {
     let mut all_ingredients: HashMap<String, Ingredient> = HashMap::new();
 
@@ -122,6 +130,11 @@ pub fn load_ingredients() -> HashMap<String, Ingredient> {
     return all_ingredients;
 }
 
+/// Writes all ingredients.
+/// 
+/// #Arguments
+/// 
+/// * `all_ingredients` The ingredients to write
 pub fn write_all_ingredients(all_ingredients: &Vec<Ingredient>) -> Result<(), String> {
     let file = OpenOptions::new()
         .write(true)
@@ -138,6 +151,11 @@ pub fn write_all_ingredients(all_ingredients: &Vec<Ingredient>) -> Result<(), St
     return Err(format!("Couldn't write to file: {}", file.unwrap_err()));
 }
 
+/// Write a single ingredient.
+/// 
+/// #Arguments
+/// 
+/// * `new_ingredient` The ingredient to append.
 pub fn write_single_ingredient(new_ingredient: &Ingredient) -> Result<(), String> {
     let file = OpenOptions::new().append(true).open("ingredients.csv");
 

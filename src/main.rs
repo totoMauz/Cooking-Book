@@ -4,7 +4,6 @@
 extern crate rocket_contrib;
 
 use std::io;
-
 use rocket_contrib::serve::StaticFiles;
 
 mod cooking_book {
@@ -26,12 +25,19 @@ use crate::cooking_book::shopping_list::ShoppingList;
 use crate::cooking_book::store::Store;
 use crate::file_access::persistency;
 
+///Returns a list of all ingredients
 #[get("/ingredient")]
 fn get_ingredient() -> String {
     let ingredients = persistency::load_ingredients();
     return Ingredient::all_to_json(&ingredients);
 }
 
+/// Adds an ingredient to the shopping list. If the ingredients doesn't exist it will be created.
+/// Returns the updated shopping list.
+/// 
+/// #Arguments
+/// 
+/// * `name` - The name of the ingredient to add
 #[put("/ingredient/<name>")]
 fn put_ingredient(name: String) -> String {
     let mut ingredients = persistency::load_ingredients();
@@ -46,6 +52,12 @@ fn put_ingredient(name: String) -> String {
     return shopping_list.to_json();
 }
 
+/// Removes an ingredient from the shopping list.
+/// Returns the updated shopping list.
+/// 
+/// #Arguments
+/// 
+/// * `name` The name of the ingredient to remove
 #[delete("/ingredient/<name>")]
 fn delete_ingredient(name: String) -> String {
     let ingredients = persistency::load_ingredients();
@@ -58,6 +70,7 @@ fn delete_ingredient(name: String) -> String {
     return shopping_list.to_json();
 }
 
+/// Returns the shopping list.
 #[get("/shopping_list")]
 fn get_shopping_list() -> String {
     let shopping_list = persistency::load_shopping_list();

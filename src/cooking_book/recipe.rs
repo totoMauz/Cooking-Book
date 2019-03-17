@@ -3,6 +3,7 @@ use crate::file_access::persistency;
 use std::collections::HashMap;
 use std::collections::HashSet;
 
+/// A recipe containing of ingredients with amount and units and some tags.
 #[derive(PartialEq, Eq)]
 pub struct Recipe {
     pub name: String,
@@ -59,6 +60,7 @@ impl Recipe {
         };
     }
 
+    /// Export the recipe to JSON.
     fn to_json(&self) -> String {
         let mut json: String = String::new();
         json.push('{');

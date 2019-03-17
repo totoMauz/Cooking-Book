@@ -2,6 +2,7 @@ use self::Group::*;
 use std::fmt;
 use std::slice::Iter;
 
+/// The groups for ingredients
 #[derive(Eq, Ord, PartialEq, PartialOrd, Clone, Debug, Copy, Hash)]
 pub enum Group {
     Vegetable = 0,
@@ -37,6 +38,10 @@ impl Group {
         println!();
     }
 
+    /// Returns the decoded Group.
+    /// 
+    /// #Arguments
+    /// * `number` The encoded Group.
     pub fn lookup_group_number(number: usize) -> Group {
         match number {
             0 => Group::Vegetable,

@@ -6,6 +6,7 @@ use crate::cooking_book::group::Group;
 use crate::cooking_book::store::Store;
 use crate::file_access::persistency;
 
+/// An ingredient which is in a specific group and has a preferred store
 #[derive(Clone, PartialEq, Eq, Hash)]
 pub struct Ingredient {
     pub name: String,
@@ -43,6 +44,11 @@ impl Ingredient {
         }
     }
 
+    /// Create a new ingredient with only a name. Store and Group will fallback to their defaults.
+    /// 
+    /// #Arguments
+    /// 
+    /// * `name` The name of the new ingredient.
     pub fn new_by_name(name: String) -> Ingredient {
         return Ingredient {
             name: name.to_string(),
@@ -50,7 +56,12 @@ impl Ingredient {
             preferred_store: Store::Any,
         };
     }
-
+    /// Create a new ingredient with only a name. Store and Group will fallback to their defaults.
+    /// The new ingredient will be persisted.
+    /// 
+    /// #Arguments
+    /// 
+    /// * `name` The name of the new ingredient.
     pub fn persist_new_ingredient(
         name: &String,
         all_ingredients: &mut HashMap<String, Ingredient>,
@@ -64,6 +75,11 @@ impl Ingredient {
         return Ok(());
     }
 
+    /// Export the list of all ingredients to JSON.
+    /// 
+    /// #Arguments
+    /// 
+    /// ' `all_ingredients` The collection of all ingredients.
     pub fn all_to_json(all_ingredients: &HashMap<String, Ingredient>) -> String {
         let mut json: String = String::new();
         json.push('[');
@@ -82,6 +98,7 @@ impl Ingredient {
         return json;
     }
 
+    /// Export this ingredient to JSON.
     pub fn to_json(&self) -> String {
         let mut json: String = String::new();
         json.push('{');
@@ -132,6 +149,7 @@ impl Ingredient {
         return Ok(());
     }
 
+    /// Returns the list of all ingredients.
     pub fn get_all_ingredients() -> Vec<Ingredient> {
         let all_ingredients = persistency::load_ingredients();
         let mut vec_ingredients: Vec<Ingredient> = Vec::new();
