@@ -99,11 +99,12 @@ fn handle_connection(mut stream: TcpStream) {
         let mut shopping_list = persistency::load_shopping_list();
         if ingredients.contains_key(&payload) {
             let ingredient = ingredients.get(&payload).unwrap();
-            shopping_list.remove(&ingredient);
-            persistency::write_shopping_list(&shopping_list).unwrap_or_else(|e| {
-                contents = e;
-                status_line = "HTTP/1.1 500 OK\r\n\r\n";
-            });
+            shopping_list
+                .remove_and_save(&ingredient)
+                .unwrap_or_else(|e| {
+                    contents = e;
+                    status_line = "HTTP/1.1 500 OK\r\n\r\n";
+                });
         }
         contents = shopping_list.to_json();
     } else if buffer.starts_with(put_ingredient) {
@@ -121,8 +122,7 @@ fn handle_connection(mut stream: TcpStream) {
         }
         let ingredient = ingredients.get(&payload).unwrap();
         let mut shopping_list = persistency::load_shopping_list();
-        shopping_list.add_or_increment(&ingredient);
-        persistency::write_shopping_list(&shopping_list).unwrap_or_else(|e| {
+        shopping_list.add_and_save(&ingredient).unwrap_or_else(|e| {
             contents = e;
             status_line = "HTTP/1.1 500 OK\r\n\r\n";
         });

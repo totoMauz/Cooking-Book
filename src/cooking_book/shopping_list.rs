@@ -28,11 +28,15 @@ impl ShoppingList {
         let ingredient: &Ingredient = all_ingredients.get(&name).unwrap();
 
         let mut shopping_list = persistency::load_shopping_list();
-        shopping_list.add_or_increment(ingredient);
-        persistency::write_shopping_list(&shopping_list).unwrap_or_else(|e| eprintln!("{}", e));
+        shopping_list.add_and_save(ingredient).unwrap_or_else(|e| eprintln!("{}", e));
     }
 
-    pub fn add_or_increment(&mut self, ingredient: &Ingredient) {
+    pub fn add_and_save(&mut self, ingredient : &Ingredient) -> Result<(), String> {
+        self.add_or_increment(ingredient);
+        return persistency::write_shopping_list(&self);
+    }
+
+    fn add_or_increment(&mut self, ingredient: &Ingredient) {
         let amount = self.to_buy.entry(ingredient.clone()).or_insert(0);
         *amount += 1;
     }
@@ -54,11 +58,15 @@ impl ShoppingList {
         let ingredient: &Ingredient = all_ingredients.get(&name).unwrap();
 
         let mut shopping_list = persistency::load_shopping_list();
-        shopping_list.remove(ingredient);
-        persistency::write_shopping_list(&shopping_list).unwrap_or_else(|e| eprintln!("{}", e));
+        shopping_list.remove_and_save(ingredient).unwrap_or_else(|e| eprintln!("{}", e));
     }
 
-    pub fn remove(&mut self, ingredient: &Ingredient) {
+    pub fn remove_and_save(&mut self, ingredient: &Ingredient) -> Result<(), String> {
+        self.remove(ingredient);
+        return persistency::write_shopping_list(&self);
+    }
+
+    fn remove(&mut self, ingredient: &Ingredient) {
         self.to_buy.remove(&ingredient);
     }
 
