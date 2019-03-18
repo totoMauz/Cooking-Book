@@ -6,13 +6,17 @@ use std::slice::Iter;
 #[derive(Eq, Ord, PartialEq, PartialOrd, Clone, Debug, Copy, Hash)]
 pub enum Group {
     Vegetable = 0,
-    Fruit = 1,
-    Freezer = 2,
-    Conserved = 3,
-    Beverage = 4,
-    Baking = 5,
-    Spice = 6,
-    Other = -1,
+    Fruit       = 1,
+    Freezer     = 2,
+    Conserved   = 3,
+    Beverage    = 4,
+    Baking      = 5,
+    Pasta       = 6,
+    Legume      = 7,
+    Spice       = 8,
+    Snacks      = 9,
+    Sweets      = 10,
+    Other       = -1,
 }
 
 impl Group {
@@ -50,7 +54,11 @@ impl Group {
             3 => Group::Conserved,
             4 => Group::Beverage,
             5 => Group::Baking,
-            6 => Group::Spice,
+            6 => Group::Pasta,
+            7 => Group::Legume,
+            8 => Group::Spice,
+            9 => Group::Snacks,
+            10 => Group::Sweets,
             _ => Group::Other,
         }
     }
@@ -65,7 +73,11 @@ impl fmt::Display for Group {
             Group::Conserved => write!(f, "Konserve"),
             Group::Beverage => write!(f, "Getränk"),
             Group::Baking => write!(f, "Backzutat"),
+            Group::Pasta => write!(f, "Nudeln"),
+            Group::Legume => write!(f, "Hülsenfrüchte"),
             Group::Spice => write!(f, "Gewürz"),
+            Group::Snacks => write!(f, "Knabberkram"),
+            Group::Sweets => write!(f, "Süßigkeiten"),
             Group::Other => write!(f, "Anderes"),
         }
     }
@@ -94,7 +106,11 @@ mod tests {
         assert_eq!(Group::lookup_group_number(3), Group::Conserved);
         assert_eq!(Group::lookup_group_number(4), Group::Beverage);
         assert_eq!(Group::lookup_group_number(5), Group::Baking);
-        assert_eq!(Group::lookup_group_number(6), Group::Spice);
-        assert_eq!(Group::lookup_group_number(7), Group::Other);
+        assert_eq!(Group::lookup_group_number(6), Group::Pasta);
+        assert_eq!(Group::lookup_group_number(7), Group::Legume);
+        assert_eq!(Group::lookup_group_number(8), Group::Spice);
+        assert_eq!(Group::lookup_group_number(9), Group::Snacks);
+        assert_eq!(Group::lookup_group_number(10), Group::Sweets);
+        assert_eq!(Group::lookup_group_number(11), Group::Other);
     }
 }
