@@ -96,15 +96,33 @@ impl ShoppingList {
         let mut keys: Vec<&Ingredient> = self.to_buy.keys().collect();
         keys.sort();
 
-        let category = keys.first().unwrap().group;
+        let first_entry = keys.first().unwrap();
+        let store = first_entry.preferred_store;
+        let category = first_entry.group;
 
         let mut json: String = String::new();
         json.push_str("{\"");
+        json.push_str(&format!("{:?}", store));
+        json.push_str("\": {\"");
+
         json.push_str(&format!("{:}", category));
         json.push_str("\": [");
 
         let mut is_first: bool = true;
         for i in keys {
+
+            if i.preferred_store != store {
+                let store = i.preferred_store;
+                let category = i.group;
+                json.push_str("]}, \"");
+                json.push_str(&format!("{:?}", store));
+                json.push_str("\": {\"");
+                json.push_str(&format!("{:}", category));
+                json.push_str("\": [");
+                is_first = true;
+            }
+
+
             if i.group != category {
                 let category = i.group;
                 json.push_str("], \"");
@@ -130,7 +148,7 @@ impl ShoppingList {
             is_first = false;
         }
 
-        json.push_str("]}");
+        json.push_str("]}}");
         return json;
     }
 }
@@ -191,7 +209,7 @@ mod tests {
 
         assert_eq!(
             shopping_list.to_json(),
-            "{\"Anderes\": [{\"name\": \"Banane\"}, {\"name\": \"Gurke\"}]}"
+            "{\"Any\": {\"Anderes\": [{\"name\": \"Banane\"}, {\"name\": \"Gurke\"}]}}"
         );
     }
 
@@ -206,7 +224,7 @@ mod tests {
 
         assert_eq!(
             shopping_list.to_json(),
-            "{\"Anderes\": [{\"name\": \"Banane\"}, {\"name\": \"Gurke\", \"amount\": 2}]}"
+            "{\"Any\": {\"Anderes\": [{\"name\": \"Banane\"}, {\"name\": \"Gurke\", \"amount\": 2}]}}"
         );
     }
 
@@ -228,7 +246,29 @@ mod tests {
 
         assert_eq!(
             shopping_list.to_json(),
-            "{\"Gemüse\": [{\"name\": \"Gurke\"}], \"Obst\": [{\"name\": \"Banane\"}]}"
+            "{\"Any\": {\"Gemüse\": [{\"name\": \"Gurke\"}], \"Obst\": [{\"name\": \"Banane\"}]}}"
+        );
+    }
+
+    #[test]
+    fn test_to_json_4() {
+        let ingredient1 = Ingredient {
+            name: "Banane".to_string(),
+            group: Group::Other,
+            preferred_store: Store::Lidl,
+        };
+        let ingredient2 = Ingredient {
+            name: "Gurke".to_string(),
+            group: Group::Other,
+            preferred_store: Store::DM,
+        };
+        let mut shopping_list = ShoppingList::new();
+        shopping_list.add_or_increment(&ingredient1);
+        shopping_list.add_or_increment(&ingredient2);
+
+        assert_eq!(
+            shopping_list.to_json(),
+            "{\"Lidl\": {\"Anderes\": [{\"name\": \"Banane\"}]}, \"DM\": {\"Anderes\": [{\"name\": \"Gurke\"}]}}"
         );
     }
 }
