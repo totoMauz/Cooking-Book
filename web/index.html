@@ -91,6 +91,7 @@
         }
       }
       xmlHttp.open("DELETE", `${sUrl}/${sData}`, true);
+      xmlHttp.setRequestHeader("Content-Type", "application/json");
       xmlHttp.send(null);
     });
   }
@@ -109,6 +110,7 @@
         }
       }
       xmlHttp.open("PUT", `${sUrl}/${sData}`, true);
+      xmlHttp.setRequestHeader("Content-Type", "application/json");
       xmlHttp.send(null);
     });
   }
@@ -127,6 +129,7 @@
         }
       }
       xmlHttp.open("GET", sUrl, true);
+      xmlHttp.setRequestHeader("Content-Type", "application/json");
       xmlHttp.send(null);
     });
   }

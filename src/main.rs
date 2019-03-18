@@ -26,7 +26,7 @@ use crate::cooking_book::store::Store;
 use crate::file_access::persistency;
 
 ///Returns a list of all ingredients
-#[get("/ingredient")]
+#[get("/ingredient", format="application/json")]
 fn get_ingredient() -> String {
     let ingredients = persistency::load_ingredients();
     return Ingredient::all_to_json(&ingredients);
@@ -38,7 +38,7 @@ fn get_ingredient() -> String {
 /// #Arguments
 /// 
 /// * `name` - The name of the ingredient to add
-#[put("/ingredient/<name>")]
+#[put("/ingredient/<name>", format="application/json")]
 fn put_ingredient(name: String) -> String {
     let mut ingredients = persistency::load_ingredients();
 
@@ -58,7 +58,7 @@ fn put_ingredient(name: String) -> String {
 /// #Arguments
 /// 
 /// * `name` The name of the ingredient to remove
-#[delete("/ingredient/<name>")]
+#[delete("/ingredient/<name>", format="application/json")]
 fn delete_ingredient(name: String) -> String {
     let ingredients = persistency::load_ingredients();
 
@@ -71,7 +71,7 @@ fn delete_ingredient(name: String) -> String {
 }
 
 /// Returns the shopping list.
-#[get("/shopping_list")]
+#[get("/shopping_list", format="application/json")]
 fn get_shopping_list() -> String {
     let shopping_list = persistency::load_shopping_list();
     return shopping_list.to_json();
