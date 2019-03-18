@@ -1,11 +1,22 @@
 <!DOCTYPE html>
 <html lang="en">
 <style>
-  body {
+  body, .delete, .input, .add {
     font-size: 4rem;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  }
+
+  body {
     color: oldlace;
     background-color: slategrey;
+  }
+
+  .content li, .input, .add {
+    border-radius: 0.5rem;
+  }
+
+  .content li, .input {
+    width: 30rem;
   }
 
   .content h2 {
@@ -24,11 +35,9 @@
   }
 
   .content li {
-    border-radius: 1rem;
     padding-left: 0.5rem;
     margin-top: 0.5rem;
     color: black;
-    width: 30rem;
   }
 
   .content li:nth-child(even) {
@@ -37,6 +46,18 @@
 
   .content li:nth-child(odd) {
     background-color: teal;
+  }
+
+  .delete {
+    color: red;
+    margin-left: 1rem;
+    background: transparent;
+    border: 0rem;
+  }
+
+  .control {
+    display: inline-flex;
+    padding-left: 5rem;
   }
 </style>
 
@@ -49,11 +70,11 @@
   <section class="header" id="header">
     <h1>Einkaufsliste</h1>
   </section>
-  <section id="control" id="control">
-    <input type="text" id="newIngredient" list="ingredients" />
+  <section class="control" id="control">
+    <input class="input" type="text" id="newIngredient" list="ingredients" />
     <datalist id="ingredients"></datalist>
   </section>
-  <button onclick="addIngredient()">Hinzufügen</button>
+  <button onclick="addIngredient()" class="add">Hinzufügen</button>
   <section class="content" id="content"></section>
 </body>
 
@@ -172,6 +193,7 @@
 
           const oButton = document.createElement('button');
           oButton.setAttribute("id", item.name);
+          oButton.className = "delete";
           oButton.innerText = 'X';
           oButton.onclick = removeIngredient.bind(this, item.name);
           oItem.appendChild(oButton);
