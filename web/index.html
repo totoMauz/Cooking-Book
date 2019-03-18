@@ -1,7 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
 <style>
-  body, .delete, .input, .add {
+  body,
+  .delete,
+  .input,
+  .add {
     font-size: 4rem;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   }
@@ -11,11 +14,14 @@
     background-color: slategrey;
   }
 
-  .content li, .input, .add {
+  .content li,
+  .input,
+  .add {
     border-radius: 0.5rem;
   }
 
-  .content li, .input {
+  .content li,
+  .input {
     width: 30rem;
   }
 
@@ -172,31 +178,38 @@
     const oContent = document.getElementById("content");
     let oNewContent = [];
     return Promise.resolve().then(() => {
-      Object.keys(shoppingList).forEach((category) => {
-        const oSubHeader = document.createElement('h2');
-        oSubHeader.innerText = category;
-        oNewContent.push(oSubHeader);
 
-        const oList = document.createElement('ul');
-        oNewContent.push(oList);
+      Object.keys(shoppingList).forEach((store) => {
+        const oStoreHeader = document.createElement('h2');
+        oStoreHeader.innerText = store;
+        oNewContent.push(oStoreHeader);
 
-        shoppingList[category].forEach((item) => {
-          const oItem = document.createElement('li');
-          oItem.setAttribute("id", `li_${item.name}`);
+        Object.keys(shoppingList[store]).forEach((category) => {
+          const oSubHeader = document.createElement('h3');
+          oSubHeader.innerText = category;
+          oNewContent.push(oSubHeader);
 
-          if (item.amount) {
-            oItem.appendChild(document.createTextNode(`${item.name}: ${item.amount}`));
-          } else {
-            oItem.appendChild(document.createTextNode(item.name));
-          }
-          oList.appendChild(oItem);
+          const oList = document.createElement('ul');
+          oNewContent.push(oList);
 
-          const oButton = document.createElement('button');
-          oButton.setAttribute("id", item.name);
-          oButton.className = "delete";
-          oButton.innerText = 'X';
-          oButton.onclick = removeIngredient.bind(this, item.name);
-          oItem.appendChild(oButton);
+          shoppingList[store][category].forEach((item) => {
+            const oItem = document.createElement('li');
+            oItem.setAttribute("id", `li_${item.name}`);
+
+            if (item.amount) {
+              oItem.appendChild(document.createTextNode(`${item.name}: ${item.amount}`));
+            } else {
+              oItem.appendChild(document.createTextNode(item.name));
+            }
+            oList.appendChild(oItem);
+
+            const oButton = document.createElement('button');
+            oButton.setAttribute("id", item.name);
+            oButton.className = "delete";
+            oButton.innerText = 'X';
+            oButton.onclick = removeIngredient.bind(this, item.name);
+            oItem.appendChild(oButton);
+          });
         });
       });
     })
