@@ -208,7 +208,8 @@
             oButton.setAttribute("id", item.name);
             oButton.className = "delete";
             oButton.innerText = 'X';
-            oButton.onclick = removeIngredient.bind(this, item.name);
+            
+            oButton.addEventListener('click', () => {removeIngredient(item.name)}, false);
             oItem.appendChild(oButton);
           });
         });
@@ -252,13 +253,12 @@
     return cleanContent()
       .then(() => { return deleteData("ingredient", sIngredient); })
       .then((shoppingList) => { displayShoppingList(shoppingList); })
-      .then(() => { 
-        return getAllIngredients(); 
+      .then(() => {
+        return getAllIngredients();
       }).finally(() => {
         window.scrollTo(0, iPosition);
       });
   }
-
 </script>
 
 </html>
