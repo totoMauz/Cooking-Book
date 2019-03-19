@@ -47,6 +47,7 @@
     padding-left: 0.5rem;
     margin-top: 0.5rem;
     color: black;
+    cursor: move;
   }
 
   .content li:nth-child(even) {
@@ -196,20 +197,27 @@
           shoppingList[store][category].forEach((item) => {
             const oItem = document.createElement('li');
             oItem.setAttribute("id", `li_${item.name}`);
+            oItem.setAttribute("draggable", true);
 
             if (item.amount) {
               oItem.appendChild(document.createTextNode(`${item.name}: ${item.amount}`));
             } else {
               oItem.appendChild(document.createTextNode(item.name));
             }
+            oItem.addEventListener('dragstart', handleDragStart, false);
+            oItem.addEventListener('dragend', handleDragEnd, false);
+
+            oItem.addEventListener('touchstart', handleTouchStart, false);
+            oItem.addEventListener('touchend', handleTouchEnd, false);
+
             oList.appendChild(oItem);
 
             const oButton = document.createElement('button');
             oButton.setAttribute("id", item.name);
             oButton.className = "delete";
             oButton.innerText = 'X';
-            
-            oButton.addEventListener('click', () => {removeIngredient(item.name)}, false);
+
+            oButton.addEventListener('click', () => { removeIngredient(item.name) }, false);
             oItem.appendChild(oButton);
           });
         });
@@ -259,6 +267,37 @@
         window.scrollTo(0, iPosition);
       });
   }
+
+  const DELTA = 100;
+  let iX = 0;
+  function handleDragStart(e) {
+    iX = e.clientX;
+  }
+
+  function handleDragEnd(e) {
+    if (Math.abs(iX - e.clientX) > DELTA) {
+      const sId = e.target.id;
+      if (sId.startsWith("li_")) {
+        removeIngredient(sId.substr(3));
+      }
+    }
+    iX = 0;
+  }
+
+  function handleTouchStart(e) {
+    iX = e.targetTouches[0].pageX;
+  }
+
+  function handleTouchEnd(e) {
+    if (Math.abs(iX - e.changedTouches[0].screenX) > DELTA) {
+      const sId = e.target.id;
+      if (sId.startsWith("li_")) {
+        removeIngredient(sId.substr(3));
+      }
+    }
+    iX = 0;
+  }
+
 </script>
 
 </html>
