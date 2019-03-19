@@ -248,10 +248,15 @@
   }
 
   function removeIngredient(sIngredient) {
+    const iPosition = document.documentElement.scrollTop || document.body.scrollTop;
     return cleanContent()
       .then(() => { return deleteData("ingredient", sIngredient); })
       .then((shoppingList) => { displayShoppingList(shoppingList); })
-      .then(() => { return getAllIngredients(); });
+      .then(() => { 
+        return getAllIngredients(); 
+      }).finally(() => {
+        window.scrollTo(0, iPosition);
+      });
   }
 
 </script>
