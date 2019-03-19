@@ -14,6 +14,10 @@
     background-color: slategrey;
   }
 
+  h3 {
+    font-size: 2rem;
+  }
+
   .content li,
   .input,
   .add {
@@ -36,7 +40,6 @@
 
   .content ul {
     margin-top: 0rem;
-    margin-bottom: 1rem;
     list-style-type: none;
   }
 
@@ -47,21 +50,22 @@
   }
 
   .content li:nth-child(even) {
-    background-color: cadetblue;
+    background-color: #006363;
   }
 
   .content li:nth-child(odd) {
-    background-color: teal;
+    background-color: #009999;
   }
 
   .delete {
-    color: red;
+    color: #A60000;
     margin-left: 1rem;
     background: transparent;
     border: 0rem;
   }
 
   .control {
+    margin-bottom: 4rem;
     display: inline-flex;
     padding-left: 5rem;
   }
@@ -180,15 +184,12 @@
     return Promise.resolve().then(() => {
 
       Object.keys(shoppingList).forEach((store) => {
-        const oStoreHeader = document.createElement('h2');
-        oStoreHeader.innerText = store;
-        oNewContent.push(oStoreHeader);
-
+        if (store !== "Any") {
+          const oStoreHeader = document.createElement('h2');
+          oStoreHeader.innerText = store;
+          oNewContent.push(oStoreHeader);
+        }
         Object.keys(shoppingList[store]).forEach((category) => {
-          const oSubHeader = document.createElement('h3');
-          oSubHeader.innerText = category;
-          oNewContent.push(oSubHeader);
-
           const oList = document.createElement('ul');
           oNewContent.push(oList);
 
@@ -211,6 +212,8 @@
             oItem.appendChild(oButton);
           });
         });
+
+        oNewContent.push(document.createElement("hr"));
       });
     })
       .catch((err) => {
