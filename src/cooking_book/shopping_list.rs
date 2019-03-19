@@ -255,7 +255,7 @@ mod tests {
         let ingredient1 = Ingredient {
             name: "Banane".to_string(),
             group: Group::Other,
-            preferred_store: Store::Lidl,
+            preferred_store: Store::Any,
         };
         let ingredient2 = Ingredient {
             name: "Gurke".to_string(),
@@ -268,7 +268,7 @@ mod tests {
 
         assert_eq!(
             shopping_list.to_json(),
-            "{\"Lidl\": {\"Anderes\": [{\"name\": \"Banane\"}]}, \"DM\": {\"Anderes\": [{\"name\": \"Gurke\"}]}}"
+            "{\"Any\": {\"Anderes\": [{\"name\": \"Banane\"}]}, \"DM\": {\"Anderes\": [{\"name\": \"Gurke\"}]}}"
         );
     }
 }

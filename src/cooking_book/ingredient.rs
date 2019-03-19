@@ -203,11 +203,11 @@ mod tests {
         let ingredient = Ingredient {
             name: "Gurke".to_string(),
             group: Group::Vegetable,
-            preferred_store: Store::Lidl,
+            preferred_store: Store::Any,
         };
         assert_eq!(
             ingredient.to_json(),
-            "{\"name\": \"Gurke\", \"group\": \"Gemüse\", \"store\": \"Lidl\"}"
+            "{\"name\": \"Gurke\", \"group\": \"Gemüse\", \"store\": \"Any\"}"
         );
     }
 

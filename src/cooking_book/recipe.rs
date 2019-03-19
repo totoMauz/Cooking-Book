@@ -251,11 +251,7 @@ mod tests {
     #[test]
     fn test_json() {
         let mut ingredients1: HashMap<Ingredient, (u16, String)> = HashMap::with_capacity(1);
-        let in1 = Ingredient {
-            name: "Ei".to_string(),
-            group: Group::Freezer,
-            preferred_store: Store::Lidl,
-        };
+        let in1 = Ingredient::new_by_name("Ei".to_string());
         ingredients1.insert(in1, (1, "Stück".to_string()));
 
         let mut tags1: HashSet<String> = HashSet::with_capacity(1);
