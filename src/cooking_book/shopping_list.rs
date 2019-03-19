@@ -102,7 +102,7 @@ impl ShoppingList {
 
         let first_entry = keys.first().unwrap();
         let store = first_entry.preferred_store;
-        let category = first_entry.group;
+        let mut category = first_entry.group;
 
         let mut json: String = String::new();
         json.push_str("{\"");
@@ -117,7 +117,7 @@ impl ShoppingList {
 
             if i.preferred_store != store {
                 let store = i.preferred_store;
-                let category = i.group;
+                category = i.group;
                 json.push_str("]}, \"");
                 json.push_str(&format!("{:?}", store));
                 json.push_str("\": {\"");
@@ -128,7 +128,7 @@ impl ShoppingList {
 
 
             if i.group != category {
-                let category = i.group;
+                category = i.group;
                 json.push_str("], \"");
                 json.push_str(&format!("{:}", category));
                 json.push_str("\": [");

@@ -177,11 +177,16 @@ impl PartialOrd for Ingredient {
 }
 impl Ord for Ingredient {
     fn cmp(&self, other: &Self) -> Ordering {
-        let order_group = self.group.cmp(&other.group);
-        if order_group == Ordering::Equal {
-            return self.name.cmp(&other.name);
+        let order_store = self.preferred_store.cmp(&other.preferred_store);
+
+        if order_store == Ordering::Equal {
+            let order_group = self.group.cmp(&other.group);
+            if order_group == Ordering::Equal {
+                return self.name.cmp(&other.name);
+            }
+            return order_group;
         }
-        return order_group;
+        return order_store;
     }
 }
 
@@ -268,7 +273,7 @@ mod tests {
     }
 
     #[test]
-    fn test_sort_1() {
+    fn test_sort_equal() {
         let i1 = Ingredient {
             name: String::from("asd"),
             group: Group::Other,
@@ -284,7 +289,7 @@ mod tests {
     }
 
     #[test]
-    fn test_sort_2() {
+    fn test_sort_group() {
         let i1 = Ingredient {
             name: String::from("asd"),
             group: Group::Vegetable,
@@ -300,7 +305,7 @@ mod tests {
     }
 
     #[test]
-    fn test_sort_3() {
+    fn test_sort_name() {
         let i1 = Ingredient {
             name: String::from("asd"),
             group: Group::Vegetable,
@@ -313,5 +318,21 @@ mod tests {
         };
 
         assert_eq!(i1.cmp(&i2), Ordering::Greater);
+    }
+
+    #[test]
+    fn test_sort_store() {
+        let i1 = Ingredient {
+            name: String::from("asd"),
+            group: Group::Vegetable,
+            preferred_store: Store::Any,
+        };
+        let i2 = Ingredient {
+            name: String::from("asd"),
+            group: Group::Vegetable,
+            preferred_store: Store::DM,
+        };
+
+        assert_eq!(i1.cmp(&i2), Ordering::Less);
     }
 }
