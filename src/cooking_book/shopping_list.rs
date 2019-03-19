@@ -94,6 +94,10 @@ impl ShoppingList {
     /// Exports the shopping list to json.
     pub fn to_json(&self) -> String {
         let mut keys: Vec<&Ingredient> = self.to_buy.keys().collect();
+        if keys.is_empty() {
+            return "{}".to_string();
+        }
+
         keys.sort();
 
         let first_entry = keys.first().unwrap();
@@ -269,6 +273,16 @@ mod tests {
         assert_eq!(
             shopping_list.to_json(),
             "{\"Any\": {\"Anderes\": [{\"name\": \"Banane\"}]}, \"DM\": {\"Anderes\": [{\"name\": \"Gurke\"}]}}"
+        );
+    }
+
+    #[test]
+    fn test_to_json_5() {
+        let shopping_list = ShoppingList::new();
+
+        assert_eq!(
+            shopping_list.to_json(),
+            "{}"
         );
     }
 }
