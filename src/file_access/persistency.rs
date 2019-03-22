@@ -9,10 +9,10 @@ use crate::cooking_book::ingredient::Ingredient;
 use crate::cooking_book::recipe::Recipe;
 use crate::cooking_book::shopping_list::ShoppingList;
 
-mod Paths {
-    pub const Ingredients : &'static str = "persistency/ingredients.csv";
-    pub const ShoppingList : &'static str = "persistency/shoppingList.csv";
-    pub const Recipes : &'static str = "persistency/recipes.csv";
+mod paths {
+    pub const INGREDIENTS : &'static str = "persistency/ingredients.csv";
+    pub const SHOPPING_LIST : &'static str = "persistency/shoppingList.csv";
+    pub const RECIPES : &'static str = "persistency/recipes.csv";
 }
 
 fn load_file(file_name: &str) -> Option<String> {
@@ -42,7 +42,7 @@ fn load_file(file_name: &str) -> Option<String> {
 pub fn load_shopping_list() -> ShoppingList {
     let mut shopping_list = ShoppingList::new();
 
-    let content = load_file(Paths::ShoppingList);
+    let content = load_file(paths::SHOPPING_LIST);
     if content.is_none() {
         return shopping_list;
     }
@@ -82,7 +82,7 @@ pub fn write_shopping_list(shopping_list: &ShoppingList) -> Result<(), String> {
     let file = OpenOptions::new()
         .write(true)
         .truncate(true)
-        .open(Paths::ShoppingList);
+        .open(paths::SHOPPING_LIST);
 
     if file.is_ok() {
         let mut file = file.unwrap();
@@ -99,7 +99,7 @@ pub fn write_shopping_list(shopping_list: &ShoppingList) -> Result<(), String> {
 pub fn load_recipes() -> HashMap<String, Recipe> {
     let mut all_recipes: HashMap<String, Recipe> = HashMap::new();
 
-    let content = load_file(Paths::Recipes);
+    let content = load_file(paths::RECIPES);
     if content.is_none() {
         return all_recipes;
     }
@@ -120,7 +120,7 @@ pub fn load_recipes() -> HashMap<String, Recipe> {
 pub fn load_ingredients() -> HashMap<String, Ingredient> {
     let mut all_ingredients: HashMap<String, Ingredient> = HashMap::new();
 
-    let content = load_file(Paths::Ingredients);
+    let content = load_file(paths::INGREDIENTS);
     if content.is_none() {
         return all_ingredients;
     }
@@ -145,7 +145,7 @@ pub fn write_all_ingredients(all_ingredients: &Vec<Ingredient>) -> Result<(), St
     let file = OpenOptions::new()
         .write(true)
         .truncate(true)
-        .open(Paths::Ingredients);
+        .open(paths::INGREDIENTS);
 
     if file.is_ok() {
         let mut file = file.unwrap();
@@ -163,7 +163,7 @@ pub fn write_all_ingredients(all_ingredients: &Vec<Ingredient>) -> Result<(), St
 /// 
 /// * `new_ingredient` The ingredient to append.
 pub fn write_single_ingredient(new_ingredient: &Ingredient) -> Result<(), String> {
-    let file = OpenOptions::new().append(true).open(Paths::Ingredients);
+    let file = OpenOptions::new().append(true).open(paths::INGREDIENTS);
 
     if file.is_ok() {
         return write_ingredient(&new_ingredient, &mut file.unwrap());

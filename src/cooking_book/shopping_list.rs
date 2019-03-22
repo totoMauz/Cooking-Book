@@ -15,23 +15,6 @@ impl ShoppingList {
         return ShoppingList { to_buy };
     }
 
-    pub fn add_ingredient() {
-        println!("Enter the name of the ingredient to add");
-        let name = crate::read_from_stdin();
-        let mut all_ingredients = persistency::load_ingredients();
-
-        if !all_ingredients.contains_key(&name) {
-            if Ingredient::persist_new_ingredient(&name, &mut all_ingredients).is_err() {
-                eprintln!("Couldn't persist new ingredient");
-            }
-        }
-
-        let ingredient: &Ingredient = all_ingredients.get(&name).unwrap();
-
-        let mut shopping_list = persistency::load_shopping_list();
-        shopping_list.add_and_save(ingredient).unwrap_or_else(|e| eprintln!("{}", e));
-    }
-
     /// Add an item to the shopping list. If the item is already present, the number to buy will be incremented.
     /// The updated shopping list will be persisted.
     pub fn add_and_save(&mut self, ingredient : &Ingredient) -> Result<(), String> {
@@ -49,22 +32,6 @@ impl ShoppingList {
         self.to_buy.insert(ingredient, amount);
     }
 
-    pub fn remove_ingredient() {
-        println!("Enter the name of the ingredient to remove");
-        let name = crate::read_from_stdin();
-        let mut all_ingredients = persistency::load_ingredients();
-
-        if !all_ingredients.contains_key(&name) {
-            Ingredient::persist_new_ingredient(&name, &mut all_ingredients)
-                .unwrap_or_else(|e| eprintln!("{}", e));
-        }
-
-        let ingredient: &Ingredient = all_ingredients.get(&name).unwrap();
-
-        let mut shopping_list = persistency::load_shopping_list();
-        shopping_list.remove_and_save(ingredient).unwrap_or_else(|e| eprintln!("{}", e));
-    }
-
     /// Remove an item from the shopping list. The updated shopping list will be persisted.
     /// 
     /// #Arguments
@@ -77,18 +44,6 @@ impl ShoppingList {
 
     fn remove(&mut self, ingredient: &Ingredient) {
         self.to_buy.remove(&ingredient);
-    }
-
-    pub fn print_shopping_list() {
-        let shopping_list = persistency::load_shopping_list();
-
-        let mut keys: Vec<&Ingredient> = shopping_list.to_buy.keys().collect();
-        keys.sort();
-
-        for k in keys {
-            let a = shopping_list.to_buy.get(k).unwrap();
-            println!("{}:\t{}", k.name, a);
-        }
     }
 
     /// Exports the shopping list to json.
@@ -125,7 +80,6 @@ impl ShoppingList {
                 json.push_str("\": [");
                 is_first = true;
             }
-
 
             if i.group != category {
                 category = i.group;

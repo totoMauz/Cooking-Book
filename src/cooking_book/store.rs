@@ -16,23 +16,6 @@ impl Store {
         STORES.into_iter()
     }
 
-    pub fn print_all_stores_multi_line() {
-        let mut idx = 0;
-        for store in Store::get_store_iterator() {
-            println!("{}: {:?}", idx, store);
-            idx += 1;
-        }
-    }
-
-    pub fn print_all_stores_single_line() {
-        let mut idx = 0;
-        for store in Store::get_store_iterator() {
-            print!("{}: {:?}\t", idx, store);
-            idx += 1;
-        }
-        println!();
-    }
-
     /// Returns the decoded Store.
     /// 
     /// #Arguments

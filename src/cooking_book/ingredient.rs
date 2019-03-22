@@ -120,35 +120,6 @@ impl Ingredient {
         return json;
     }
 
-    pub fn save_new_ingredient() -> Result<(), String> {
-        println!("Enter a name, the group and the preferred store like this Name;0;0");
-        println!("Possible groups are: ");
-        Group::print_all_groups_single_line();
-        println!("Possible stores are: ");
-        Store::print_all_stores_single_line();
-
-        let input = crate::read_from_stdin();
-        let new_ingredient = Ingredient::new_by_line(input.as_str());
-        return persistency::write_single_ingredient(&new_ingredient);
-    }
-
-    pub fn delete_ingredient() -> Result<(), String> {
-        println!("Enter a name of an Ingredient to delete");
-        let input = crate::read_from_stdin();
-
-        let mut all_ingredients = Ingredient::get_all_ingredients();
-        let found_ingredient = all_ingredients.iter().position(|x| x.name == input);
-
-        match found_ingredient {
-            Some(position) => {
-                all_ingredients.remove(position);
-                return persistency::write_all_ingredients(&all_ingredients);
-            }
-            None => eprintln!("Couldn't find Ingredient {}", input),
-        }
-        return Ok(());
-    }
-
     /// Returns the list of all ingredients.
     pub fn get_all_ingredients() -> Vec<Ingredient> {
         let all_ingredients = persistency::load_ingredients();
@@ -160,13 +131,6 @@ impl Ingredient {
         vec_ingredients.sort();
 
         return vec_ingredients;
-    }
-
-    pub fn print_all_ingredients_multi_line() {
-        let all_ingredients = Ingredient::get_all_ingredients();
-        for ingredient in all_ingredients {
-            println!("{}", ingredient);
-        }
     }
 }
 

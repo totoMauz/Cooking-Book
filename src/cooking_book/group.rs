@@ -25,23 +25,6 @@ impl Group {
         GROUPS.into_iter()
     }
 
-    pub fn print_all_groups_multi_line() {
-        let mut idx = 0;
-        for group in Group::get_group_iterator() {
-            println!("{}: {}", idx, group);
-            idx += 1;
-        }
-    }
-
-    pub fn print_all_groups_single_line() {
-        let mut idx = 0;
-        for group in Group::get_group_iterator() {
-            print!("{}: {:?}\t", idx, group);
-            idx += 1;
-        }
-        println!();
-    }
-
     /// Returns the decoded Group.
     /// 
     /// #Arguments

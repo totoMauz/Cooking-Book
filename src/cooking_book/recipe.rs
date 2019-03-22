@@ -97,23 +97,6 @@ impl Recipe {
         return json;
     }
 
-    fn print_recipe(&self, name: &str) {
-        println!("{}", name);
-        println!("{:?}", &self.tags);
-
-        for (i, (amount, unit)) in &self.ingredients {
-            println!("\t{}: {} {}", i.name, amount, unit);
-        }
-        println!();
-    }
-
-    pub fn print_all_recipes_multi_line() {
-        let all_recipes = persistency::load_recipes();
-        for (name, recipe) in all_recipes {
-            recipe.print_recipe(name.as_str());
-        }
-    }
-
     fn get_recipes_by_name<'a>(
         recipes: &'a HashMap<String, Recipe>,
         name: &str,
@@ -171,16 +154,6 @@ impl Recipe {
         return recipes_by_tag;
     }
 
-    pub fn print_recipes_by_name() {
-        println!("Enter the name of the Recipe");
-        let input = crate::read_from_stdin();
-        let all_recipes = persistency::load_recipes();
-
-        for recipe in Recipe::get_recipes_by_name(&all_recipes, input.as_str()) {
-            recipe.print_recipe(&recipe.name);
-        }
-    }
-
     fn split_including_and_excluding(input: Vec<&str>) -> (Vec<String>, Vec<String>) {
         let mut including: Vec<String> = Vec::new();
         let mut excluding: Vec<String> = Vec::new();
@@ -194,20 +167,6 @@ impl Recipe {
         }
 
         return (including, excluding);
-    }
-
-    pub fn print_recipes_by_used_ingredient() {
-        println!("Enter a name of an Ingredient which is used for the Recipe");
-        println!("To exclude an Ingredient put an ! before: eg Sugar,!Eggs");
-        let input = crate::read_from_stdin();
-        let input = input.as_str();
-        let all_recipes = persistency::load_recipes();
-
-        let input: Vec<&str> = input.trim().split(',').collect();
-        let (including, excluding) = Recipe::split_including_and_excluding(input);
-        for recipe in Recipe::get_recipes_by_ingredients(&all_recipes, &including, &excluding) {
-            recipe.print_recipe(&recipe.name);
-        }
     }
 
     fn unify_tags(input: &str) -> Vec<String> {
@@ -225,17 +184,6 @@ impl Recipe {
             }
         }
         return tags;
-    }
-
-    pub fn print_recipes_by_tag() {
-        println!("Enter tags of Recipes to display:");
-        let input = crate::read_from_stdin();
-        let tags = Recipe::unify_tags(input.as_str());
-        let all_recipes = persistency::load_recipes();
-
-        for recipe in Recipe::get_recipes_by_tags(&all_recipes, &tags) {
-            recipe.print_recipe(&recipe.name);
-        }
     }
 }
 
