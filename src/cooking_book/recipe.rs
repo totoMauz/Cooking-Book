@@ -191,8 +191,8 @@ impl Recipe {
 mod tests {
     use super::Recipe;
     use crate::cooking_book::store::Store;
-    use crate::Group;
-    use crate::Ingredient;
+    use crate::cooking_book::group::Group;
+    use crate::cooking_book::ingredient::Ingredient;
     use std::collections::HashMap;
     use std::collections::HashSet;
 
