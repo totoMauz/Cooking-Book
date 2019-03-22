@@ -4,7 +4,7 @@
   body,
   .delete,
   .input,
-  .add {
+  button {
     font-size: 4rem;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   }
@@ -20,7 +20,7 @@
 
   .content li,
   .input,
-  .add {
+  button {
     border-radius: 0.5rem;
   }
 
@@ -70,6 +70,27 @@
     display: inline-flex;
     padding-left: 5rem;
   }
+
+  .tab {
+    overflow: hidden;
+  }
+
+  .tab button {
+    background-color: inherit;
+    float: left;
+    border: none;
+    outline: none;
+    cursor: pointer;
+    transition: 0.3s;
+  }
+
+  .tab button:hover {
+    background-color: #ddd;
+  }
+
+  .tab button.active {
+    background-color: #ccc;
+  }
 </style>
 
 <head>
@@ -77,19 +98,85 @@
   <title>Einkaufsliste</title>
 </head>
 
-<body onload="getShoppingList();getAllIngredients();">
+<body onload="showShoppingList()">
   <section class="header" id="header">
-    <h1>Einkaufsliste</h1>
+    <button id="btnShoppingList" class="tablinks" onclick="showShoppingList()">Einkaufsliste</button>
+    <button id="btnRecipes" class="tablinks" onclick="showRecipes()">Rezepte</button>
+    <button id="btnIngredients" class="tablinks" onclick="showIngredients()">Zutaten</button>
   </section>
-  <section class="control" id="control">
-    <input class="input" type="text" id="newIngredient" list="ingredients" />
-    <datalist id="ingredients"></datalist>
+  <section id="shoppingList">
+    <section class="control" id="control">
+      <input class="input" type="text" id="newIngredient" list="dl_ingredients" />
+      <datalist id="dl_ingredients"></datalist>
+    </section>
+    <button onclick="addIngredient()">Hinzufügen</button>
   </section>
-  <button onclick="addIngredient()" class="add">Hinzufügen</button>
+  <section id="recipes">
+    asd
+  </section>
+  <section id="ingredients">
+    fgh
+  </section>
   <section class="content" id="content"></section>
 </body>
 
 <script language="javascript">
+
+  function showShoppingList() {
+    deactivateAllTabs();
+    hideElements(["recipes", "ingredients"]);
+    document.getElementById("btnShoppingList").className += " active";
+    return cleanContent()
+      .then(() => {
+        showElement("shoppingList");
+        return getShoppingList();
+      })
+      .then(() => {
+        return getAllIngredients();
+      });
+  }
+
+  function showRecipes() {
+    deactivateAllTabs();
+    hideElements(["shoppingList", "ingredients"]);
+    document.getElementById("btnRecipes").className += " active";
+    return cleanContent()
+      .then(() => {
+        showElement("recipes");
+      });
+  }
+
+  function showIngredients() {
+    deactivateAllTabs();
+    hideElements(["shoppingList", "recipes"]);
+    document.getElementById("btnIngredients").className += " active";
+    return cleanContent()
+      .then(() => {
+        showElement("ingredients");
+      });
+  }
+
+  function deactivateAllTabs() {
+    const aTabs = document.getElementsByClassName("tablinks");
+    for(let oTab of aTabs) {
+      oTab.className = oTab.className.replace(" active", "");
+    };
+  }
+
+  function hideElements(aId) {
+    if (Array.isArray(aId)) {
+      aId.forEach((sId) => {
+        document.getElementById(sId).style.display = "none";
+      });
+    }
+    else {
+      document.getElementById(aId).style.display = "none";
+    }
+  }
+
+  function showElement(sId) {
+    document.getElementById(sId).style.display = "block";
+  }
 
   function cleanContent() {
     return Promise.resolve().then(() => {
@@ -102,7 +189,7 @@
 
   function cleanOptions() {
     return Promise.resolve().then(() => {
-      const oIngredients = document.getElementById("ingredients");
+      const oIngredients = document.getElementById("dl_ingredients");
       while (oIngredients.children.length > 0) {
         oIngredients.children[0].remove();
       }
@@ -170,7 +257,7 @@
     return cleanOptions()
       .then(() => { return getQuery("/ingredient") })
       .then((ingredients) => {
-        const oIngredients = document.getElementById("ingredients");
+        const oIngredients = document.getElementById("dl_ingredients");
         ingredients.forEach((i) => {
           const oOption = document.createElement('option');
           oOption.value = i.name;
