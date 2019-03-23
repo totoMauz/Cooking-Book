@@ -45,9 +45,9 @@ impl Ingredient {
     }
 
     /// Create a new ingredient with only a name. Store and Group will fallback to their defaults.
-    /// 
+    ///
     /// #Arguments
-    /// 
+    ///
     /// * `name` The name of the new ingredient.
     pub fn new_by_name(name: String) -> Ingredient {
         return Ingredient {
@@ -58,9 +58,9 @@ impl Ingredient {
     }
     /// Create a new ingredient with only a name. Store and Group will fallback to their defaults.
     /// The new ingredient will be persisted.
-    /// 
+    ///
     /// #Arguments
-    /// 
+    ///
     /// * `name` The name of the new ingredient.
     pub fn persist_new_ingredient(
         name: &String,
@@ -76,9 +76,9 @@ impl Ingredient {
     }
 
     /// Export the list of all ingredients to JSON.
-    /// 
+    ///
     /// #Arguments
-    /// 
+    ///
     /// ' `all_ingredients` The collection of all ingredients.
     pub fn all_to_json(all_ingredients: &HashMap<String, Ingredient>) -> String {
         let mut json: String = String::new();

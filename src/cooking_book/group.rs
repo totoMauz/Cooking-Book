@@ -6,27 +6,29 @@ use std::slice::Iter;
 #[derive(Eq, Ord, PartialEq, PartialOrd, Clone, Debug, Copy, Hash)]
 pub enum Group {
     Vegetable = 0,
-    Fruit       = 1,
-    Freezer     = 2,
-    Conserved   = 3,
-    Beverage    = 4,
-    Baking      = 5,
-    Pasta       = 6,
-    Legume      = 7,
-    Spice       = 8,
-    Snacks      = 9,
-    Sweets      = 10,
-    Other       = -1,
+    Fruit = 1,
+    Freezer = 2,
+    Conserved = 3,
+    Beverage = 4,
+    Baking = 5,
+    Pasta = 6,
+    Legume = 7,
+    Spice = 8,
+    Snacks = 9,
+    Sweets = 10,
+    Other = -1,
 }
 
 impl Group {
     fn get_group_iterator() -> Iter<'static, Group> {
-        static GROUPS: [Group; 8] = [Vegetable, Fruit, Freezer, Conserved, Beverage, Baking, Spice, Other];
+        static GROUPS: [Group; 8] = [
+            Vegetable, Fruit, Freezer, Conserved, Beverage, Baking, Spice, Other,
+        ];
         GROUPS.into_iter()
     }
 
     /// Returns the decoded Group.
-    /// 
+    ///
     /// #Arguments
     /// * `number` The encoded Group.
     pub fn lookup_group_number(number: usize) -> Group {

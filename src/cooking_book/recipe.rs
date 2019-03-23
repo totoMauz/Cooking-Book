@@ -190,9 +190,9 @@ impl Recipe {
 #[cfg(test)]
 mod tests {
     use super::Recipe;
-    use crate::cooking_book::store::Store;
     use crate::cooking_book::group::Group;
     use crate::cooking_book::ingredient::Ingredient;
+    use crate::cooking_book::store::Store;
     use std::collections::HashMap;
     use std::collections::HashSet;
 

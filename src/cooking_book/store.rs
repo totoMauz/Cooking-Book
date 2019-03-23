@@ -4,10 +4,10 @@ use std::slice::Iter;
 /// The available stores for shopping.
 #[derive(Eq, Ord, PartialEq, PartialOrd, Clone, Debug, Copy, Hash)]
 pub enum Store {
-    Rewe    = 0,
-    DM      = 1,
-    Denz    = 2,
-    Any     = -1,
+    Rewe = 0,
+    DM = 1,
+    Denz = 2,
+    Any = -1,
 }
 
 impl Store {
@@ -17,7 +17,7 @@ impl Store {
     }
 
     /// Returns the decoded Store.
-    /// 
+    ///
     /// #Arguments
     /// * `number` The encoded store.
     pub fn lookup_store_number(number: usize) -> Store {

@@ -17,7 +17,7 @@ impl ShoppingList {
 
     /// Add an item to the shopping list. If the item is already present, the number to buy will be incremented.
     /// The updated shopping list will be persisted.
-    pub fn add_and_save(&mut self, ingredient : &Ingredient) -> Result<(), String> {
+    pub fn add_and_save(&mut self, ingredient: &Ingredient) -> Result<(), String> {
         self.add_or_increment(ingredient);
         return persistency::write_shopping_list(&self);
     }
@@ -33,9 +33,9 @@ impl ShoppingList {
     }
 
     /// Remove an item from the shopping list. The updated shopping list will be persisted.
-    /// 
+    ///
     /// #Arguments
-    /// 
+    ///
     /// * `ingredient` The ingredient to remove from the list.
     pub fn remove_and_save(&mut self, ingredient: &Ingredient) -> Result<(), String> {
         self.remove(ingredient);
@@ -69,7 +69,6 @@ impl ShoppingList {
 
         let mut is_first: bool = true;
         for i in keys {
-
             if i.preferred_store != store {
                 let store = i.preferred_store;
                 category = i.group;
@@ -234,9 +233,6 @@ mod tests {
     fn test_to_json_5() {
         let shopping_list = ShoppingList::new();
 
-        assert_eq!(
-            shopping_list.to_json(),
-            "{}"
-        );
+        assert_eq!(shopping_list.to_json(), "{}");
     }
 }

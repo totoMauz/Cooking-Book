@@ -10,9 +10,9 @@ use crate::cooking_book::recipe::Recipe;
 use crate::cooking_book::shopping_list::ShoppingList;
 
 mod paths {
-    pub const INGREDIENTS : &'static str = "persistency/ingredients.csv";
-    pub const SHOPPING_LIST : &'static str = "persistency/shoppingList.csv";
-    pub const RECIPES : &'static str = "persistency/recipes.csv";
+    pub const INGREDIENTS: &'static str = "persistency/ingredients.csv";
+    pub const SHOPPING_LIST: &'static str = "persistency/shoppingList.csv";
+    pub const RECIPES: &'static str = "persistency/recipes.csv";
 }
 
 fn load_file(file_name: &str) -> Option<String> {
@@ -54,7 +54,8 @@ pub fn load_shopping_list() -> ShoppingList {
         let name = values.next().unwrap().to_string();
 
         if !all_ingredients.contains_key(&name) {
-            Ingredient::persist_new_ingredient(&name, &mut all_ingredients).unwrap_or_else(|e| eprintln!("{}", e));
+            Ingredient::persist_new_ingredient(&name, &mut all_ingredients)
+                .unwrap_or_else(|e| eprintln!("{}", e));
         }
 
         let amount = match values.next() {
@@ -74,9 +75,9 @@ pub fn load_shopping_list() -> ShoppingList {
 }
 
 /// Writes the shopping list.
-/// 
+///
 /// #Arguments
-/// 
+///
 /// * `shopping_list` The shopping list to write.
 pub fn write_shopping_list(shopping_list: &ShoppingList) -> Result<(), String> {
     let file = OpenOptions::new()
@@ -137,9 +138,9 @@ pub fn load_ingredients() -> HashMap<String, Ingredient> {
 }
 
 /// Writes all ingredients.
-/// 
+///
 /// #Arguments
-/// 
+///
 /// * `all_ingredients` The ingredients to write
 pub fn write_all_ingredients(all_ingredients: &Vec<Ingredient>) -> Result<(), String> {
     let file = OpenOptions::new()
@@ -158,9 +159,9 @@ pub fn write_all_ingredients(all_ingredients: &Vec<Ingredient>) -> Result<(), St
 }
 
 /// Write a single ingredient.
-/// 
+///
 /// #Arguments
-/// 
+///
 /// * `new_ingredient` The ingredient to append.
 pub fn write_single_ingredient(new_ingredient: &Ingredient) -> Result<(), String> {
     let file = OpenOptions::new().append(true).open(paths::INGREDIENTS);
