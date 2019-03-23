@@ -39,11 +39,11 @@ fn put_ingredient(name: String) -> String {
     let mut ingredients = persistency::load_ingredients();
 
     if !ingredients.contains_key(&name) {
-        Ingredient::persist_new_ingredient(&name, &mut ingredients);
+        let _ = Ingredient::persist_new_ingredient(&name, &mut ingredients);
     }
     let ingredient = ingredients.get(&name).unwrap();
     let mut shopping_list = persistency::load_shopping_list();
-    shopping_list.add_and_save(&ingredient);
+    let _ = shopping_list.add_and_save(&ingredient);
 
     return shopping_list.to_json();
 }
@@ -61,7 +61,7 @@ fn delete_ingredient(name: String) -> String {
     let mut shopping_list = persistency::load_shopping_list();
     if ingredients.contains_key(&name) {
         let ingredient = ingredients.get(&name).unwrap();
-        shopping_list.remove_and_save(&ingredient);
+        let _ = shopping_list.remove_and_save(&ingredient);
     }
     return shopping_list.to_json();
 }
