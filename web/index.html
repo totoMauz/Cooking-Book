@@ -93,7 +93,6 @@
     outline: none;
     cursor: pointer;
     transition: 0.3s;
-    width: 33%;
   }
 
   .header button:hover {
@@ -141,6 +140,7 @@
     deactivateAllTabs();
     hideElements(["recipes", "ingredients"]);
     document.getElementById("btnShoppingList").className += " active";
+    document.getElementById("btnShoppingList").style.width = "40%";
     return cleanContent()
       .then(() => {
         showElement("shoppingList");
@@ -155,6 +155,7 @@
     deactivateAllTabs();
     hideElements(["shoppingList", "ingredients"]);
     document.getElementById("btnRecipes").className += " active";
+    document.getElementById("btnRecipes").style.width = "40%";
     return cleanContent()
       .then(() => {
         showElement("recipes");
@@ -165,6 +166,7 @@
     deactivateAllTabs();
     hideElements(["shoppingList", "recipes"]);
     document.getElementById("btnIngredients").className += " active";
+    document.getElementById("btnIngredients").style.width = "40%";
     return cleanContent()
       .then(() => {
         showElement("ingredients");
@@ -175,6 +177,7 @@
     const aTabs = document.getElementsByClassName("tablinks");
     for (let oTab of aTabs) {
       oTab.className = oTab.className.replace(" active", "");
+      oTab.style.width = "30%";
     };
   }
 
@@ -397,7 +400,6 @@
   }
 
   function handleTouchMove(e) {
-    console.log(e.target.style.top);
     const touchLocation = e.targetTouches[0];
     e.target.style.left = touchLocation.pageX + 'px';
     e.target.style.top = touchLocation.pageY + 'px';
