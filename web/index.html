@@ -5,7 +5,7 @@
     --color-1: #5AA8AD;
     --color-2: #6492A0;
 
-    --color-bg-1: #51646A;
+    --color-bg-1: #959b9c;
     --color-font-bg-1: #202020;
 
     --color-bg-2: #F4F3F5;
@@ -16,7 +16,7 @@
   .delete,
   .input,
   button {
-    font-size: 4rem;
+    font-size: 1.4rem;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   }
 
@@ -30,10 +30,6 @@
     background-color: var(--color-bg-1);
   }
 
-  h3 {
-    font-size: 2rem;
-  }
-
   .header,
   .content li,
   .input,
@@ -45,25 +41,21 @@
 
   .content li,
   .input {
-    width: 30rem;
+    width: 14rem;
   }
 
-  .content h2 {
+  .content h1 {
     margin-top: 1rem;
     margin-bottom: 0rem;
   }
 
-  .content {
-    padding-left: 2rem;
-  }
-
   .content ul {
     margin-top: 0rem;
+    padding-left: 0rem;
     list-style-type: none;
   }
 
   .content li {
-    padding-left: 0.5rem;
     margin-top: 0.5rem;
     color: black;
     cursor: move;
@@ -87,7 +79,6 @@
   .control {
     margin-bottom: 4rem;
     display: inline-flex;
-    padding-left: 5rem;
   }
 
   .header {
@@ -102,7 +93,7 @@
     outline: none;
     cursor: pointer;
     transition: 0.3s;
-    width: 32%;
+    width: 33%;
   }
 
   .header button:hover {
@@ -116,22 +107,24 @@
 
 <head>
   <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="Description" content="Shopping list with some admin areas to configure ingredients or recipes">
   <title>Einkaufsliste</title>
   <link rel=icon href=favicon.png sizes="50x50" type="image/png">
 </head>
 
 <body onload="showShoppingList()">
   <section class="header" id="header">
-    <button id="btnShoppingList" class="tablinks" onclick="showShoppingList()">Einkaufsliste</button>
-    <button id="btnRecipes" class="tablinks" onclick="showRecipes()">Rezepte</button>
-    <button id="btnIngredients" class="tablinks" onclick="showIngredients()">Zutaten</button>
+    <button id="btnShoppingList" class="tablinks" onclick="showShoppingList()" accesskey="e">Einkaufsliste</button>
+    <button id="btnRecipes" class="tablinks" onclick="showRecipes()" accesskey="r">Rezepte</button>
+    <button id="btnIngredients" class="tablinks" onclick="showIngredients()" accesskey="z">Zutaten</button>
   </section>
   <section id="shoppingList">
     <section class="control" id="control">
       <input class="input" type="text" id="newIngredient" list="dl_ingredients" />
       <datalist id="dl_ingredients"></datalist>
     </section>
-    <button onclick="addIngredient()">Hinzufügen</button>
+    <button onclick="addIngredient()">+</button>
   </section>
   <section id="recipes">
     asd
@@ -295,7 +288,7 @@
 
       Object.keys(shoppingList).forEach((store) => {
         if (store !== "Any") {
-          const oStoreHeader = document.createElement('h2');
+          const oStoreHeader = document.createElement('h1');
           oStoreHeader.innerText = store;
           oNewContent.push(oStoreHeader);
         }
@@ -316,8 +309,9 @@
             oItem.addEventListener('dragstart', handleDragStart, false);
             oItem.addEventListener('dragend', handleDragEnd, false);
 
-            oItem.addEventListener('touchstart', handleTouchStart, false);
-            oItem.addEventListener('touchend', handleTouchEnd, false);
+            oItem.addEventListener('touchstart', handleTouchStart, { passive: true });
+            oItem.addEventListener('touchmove', handleTouchMove, { passive: true });
+            oItem.addEventListener('touchend', handleTouchEnd, { passive: true });
 
             oList.appendChild(oItem);
 
@@ -381,6 +375,7 @@
   let iX = 0;
   function handleDragStart(e) {
     iX = e.clientX;
+    e.target.style.opacity = "0.4";
   }
 
   function handleDragEnd(e) {
@@ -390,11 +385,22 @@
         removeIngredient(sId.substr(3));
       }
     }
+    else {
+      e.target.style.opacity = "1";
+    }
     iX = 0;
   }
 
   function handleTouchStart(e) {
     iX = e.targetTouches[0].pageX;
+    e.target.style.opacity = "0.4";
+  }
+
+  function handleTouchMove(e) {
+    console.log(e.target.style.top);
+    const touchLocation = e.targetTouches[0];
+    e.target.style.left = touchLocation.pageX + 'px';
+    e.target.style.top = touchLocation.pageY + 'px';
   }
 
   function handleTouchEnd(e) {
@@ -403,6 +409,9 @@
       if (sId.startsWith("li_")) {
         removeIngredient(sId.substr(3));
       }
+    }
+    else {
+      e.target.style.opacity = "1";
     }
     iX = 0;
   }
