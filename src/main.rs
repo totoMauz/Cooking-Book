@@ -22,6 +22,18 @@ mod file_access {
 use crate::cooking_book::ingredient::Ingredient;
 use crate::file_access::persistency;
 
+/// Returns the stores.
+#[get("/store", format = "application/json")]
+fn get_store() -> String {
+    return crate::cooking_book::store::Store::all_as_json();
+}
+
+/// Returns the groups.
+#[get("/group", format = "application/json")]
+fn get_group() -> String {
+    return crate::cooking_book::group::Group::all_as_json();
+}
+
 ///Returns a list of all ingredients
 #[get("/ingredient", format = "application/json")]
 fn get_ingredient() -> String {
@@ -79,6 +91,8 @@ fn main() {
         .mount(
             "/",
             routes![
+                get_store,
+                get_group,
                 get_ingredient,
                 put_ingredient,
                 delete_ingredient,

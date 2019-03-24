@@ -16,6 +16,24 @@ impl Store {
         STORES.into_iter()
     }
 
+    pub fn all_as_json() -> String {
+        let mut json = String::new();
+        json.push_str("{\"stores\": [");
+
+        let mut is_first: bool = true;
+        for store in Store::get_store_iterator() {
+            if is_first {
+                json.push_str(&format!("\"{:?}\"", store));
+                is_first = false;
+            } else {
+                json.push_str(&format!(", \"{:?}\"", store));
+            }
+        }
+        json.push_str("]}");
+
+        return json;
+    }
+
     /// Returns the decoded Store.
     ///
     /// #Arguments

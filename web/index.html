@@ -136,6 +136,9 @@
 
 <script language="javascript">
 
+  let aGroups;
+  let aStores;
+
   function showShoppingList() {
     deactivateAllTabs();
     hideElements(["recipes", "ingredients"]);
@@ -170,6 +173,9 @@
     return cleanContent()
       .then(() => {
         showElement("ingredients");
+        return getAllStores();
+      }).then(() => {
+        return getAllGroups();
       });
   }
 
@@ -269,6 +275,28 @@
       xmlHttp.setRequestHeader("Content-Type", "application/json");
       xmlHttp.send(null);
     });
+  }
+
+  function getAllStores() {
+    if (!aStores) {
+      return getQuery("/store")
+        .then((data) => {
+          aStores = data.stores;
+          return aStores;
+        });
+    }
+    return Promise.resolve(aStores);
+  }
+
+  function getAllGroups() {
+    if (!aGroups) {
+      return getQuery("/group")
+        .then((data) => {
+          aGroups = data.groups;
+          return aGroups;
+        });
+    }
+    return Promise.resolve(aGroups);
   }
 
   function getAllIngredients() {
