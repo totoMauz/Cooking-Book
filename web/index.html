@@ -125,13 +125,13 @@
     </section>
     <button onclick="addIngredient()">+</button>
   </section>
-  <section id="recipes">
+  <section class="content" id="c_recipes">
     asd
   </section>
-  <section id="ingredients">
+  <section class="content" id="c_ingredients">
     fgh
   </section>
-  <section class="content" id="content"></section>
+  <section class="content" id="c_shoppingList"></section>
 </body>
 
 <script language="javascript">
@@ -141,41 +141,41 @@
 
   function showShoppingList() {
     deactivateAllTabs();
-    hideElements(["recipes", "ingredients"]);
+    hideElements(["c_recipes", "c_ingredients"]);
     document.getElementById("btnShoppingList").className += " active";
     document.getElementById("btnShoppingList").style.width = "40%";
-    cleanContent();
-    showElement("shoppingList");
+    cleanContent("c_shoppingList");
+    showElement(["c_shoppingList", "shoppingList"]);
     return getShoppingList()
       .then(() => {
-        return getQuery("/ingredient")
-      })
-      .then((data) => {
-
+        return getAllIngredients();
       });
   }
 
   function showRecipes() {
     deactivateAllTabs();
-    hideElements(["shoppingList", "ingredients"]);
+    hideElements(["c_shoppingList", "c_ingredients", "shoppingList"]);
     document.getElementById("btnRecipes").className += " active";
     document.getElementById("btnRecipes").style.width = "40%";
-    cleanContent();
-    showElement("recipes");
+    cleanContent("c_recipes");
+    showElement(["c_recipes"]);
   }
 
   function showIngredients() {
     deactivateAllTabs();
-    hideElements(["shoppingList", "recipes"]);
+    hideElements(["c_shoppingList", "c_recipes"]);
     document.getElementById("btnIngredients").className += " active";
     document.getElementById("btnIngredients").style.width = "40%";
-    cleanContent();
-    showElement("ingredients");
+    cleanContent("c_ingredients");
+    showElement(["c_ingredients", "shoppingList"]);
     return getAllStores()
       .then(() => {
         return getAllGroups();
       }).then(() => {
-        return ingredient();
+        return getQuery("/ingredient")
+      })
+      .then((ingredients) => {
+
       });
   }
 
@@ -193,12 +193,14 @@
     });
   }
 
-  function showElement(sId) {
-    document.getElementById(sId).style.display = "block";
+  function showElement(aId) {
+    aId.forEach((sId) => {
+      document.getElementById(sId).style.display = "block";
+    });
   }
 
-  function cleanContent() {
-    const oContent = document.getElementById("content");
+  function cleanContent(sId) {
+    const oContent = document.getElementById(sId);
     while (oContent.firstChild) {
       oContent.removeChild(oContent.firstChild);
     }
@@ -304,7 +306,7 @@
   }
 
   function displayShoppingList(shoppingList) {
-    const oContent = document.getElementById("content");
+    const oContent = document.getElementById("c_shoppingList");
     let oNewContent = [];
     return Promise.resolve().then(() => {
 
@@ -366,7 +368,7 @@
   }
 
   function getShoppingList() {
-    cleanContent();
+    cleanContent("c_shoppingList");
     return getQuery("/shopping_list")
       .then((shoppingList) => { return displayShoppingList(shoppingList); })
   }
@@ -375,7 +377,7 @@
     const oIngredient = document.getElementById("newIngredient");
     const sInput = oIngredient.value;
 
-    cleanContent();
+    cleanContent("c_shoppingList");
     return putData("ingredient", sInput)
       .then((shoppingList) => { displayShoppingList(shoppingList); })
       .then(() => { return getAllIngredients(); });
@@ -383,7 +385,7 @@
 
   function removeIngredient(sIngredient) {
     const iPosition = document.documentElement.scrollTop || document.body.scrollTop;
-    cleanContent();
+    cleanContent("c_shoppingList");
     return deleteData("ingredient", sIngredient)
       .then((shoppingList) => { displayShoppingList(shoppingList); })
       .then(() => {
