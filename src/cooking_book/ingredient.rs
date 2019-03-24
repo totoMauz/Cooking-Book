@@ -84,13 +84,16 @@ impl Ingredient {
         let mut json: String = String::new();
         json.push('[');
 
+        let mut keys: Vec<&String> = all_ingredients.keys().collect();
+        keys.sort();
+
         let mut is_first: bool = true;
-        for (_k, i) in all_ingredients {
+        for k in keys {
             if !is_first {
                 json.push_str(", ");
             }
 
-            json.push_str(&i.to_json());
+            json.push_str(&all_ingredients.get(k).unwrap().to_json());
             is_first = false;
         }
 
