@@ -113,11 +113,13 @@
 </head>
 
 <body onload="showShoppingList()">
-  <section class="header" id="header">
+  <nav class="header" id="header">
     <button id="btnShoppingList" class="tablinks" onclick="showShoppingList()" accesskey="e">Einkaufsliste</button>
     <button id="btnRecipes" class="tablinks" onclick="showRecipes()" accesskey="r">Rezepte</button>
     <button id="btnIngredients" class="tablinks" onclick="showIngredients()" accesskey="z">Zutaten</button>
-  </section>
+  </nav>
+
+  <!-- Used by both ShopplingList and Ingredients -->
   <section id="shoppingList">
     <section class="control" id="control">
       <input class="input" type="text" id="newIngredient" list="dl_ingredients" />
@@ -125,12 +127,9 @@
     </section>
     <button onclick="addIngredient()">+</button>
   </section>
-  <section class="content" id="c_recipes">
-    asd
-  </section>
-  <section class="content" id="c_ingredients">
-    fgh
-  </section>
+
+  <section class="content" id="c_recipes"></section>
+  <section class="content" id="c_ingredients"></section>
   <section class="content" id="c_shoppingList"></section>
 </body>
 
@@ -168,6 +167,10 @@
     document.getElementById("btnIngredients").style.width = "40%";
     cleanContent("c_ingredients");
     showElement(["c_ingredients", "shoppingList"]);
+
+    const oContent = document.getElementById("c_ingredients");
+    let oNewContent = [];
+
     return getAllStores()
       .then(() => {
         return getAllGroups();
@@ -176,6 +179,35 @@
       })
       .then((ingredients) => {
 
+        let oList = document.createElement("ul");
+
+        ingredients.forEach((ingredient) => {
+          let oIngredient = document.createElement("li");
+
+          let oName = document.createElement("span");
+          oName.innerText = ingredient.name;
+
+          oIngredient.appendChild(oName);
+
+
+          oList.appendChild(oIngredient);
+        });
+
+        oNewContent.push(oList);
+      })
+      .catch((err) => {
+        oNewContent = document.createElement('span');
+        oNewContent.innerText = err;
+      })
+      .finally(() => {
+        if (Array.isArray(oNewContent)) {
+          oNewContent.forEach((newContent) => {
+            oContent.appendChild(newContent);
+          });
+        }
+        else {
+          oContent.appendChild(oNewContent);
+        }
       });
   }
 
