@@ -144,13 +144,14 @@
     hideElements(["recipes", "ingredients"]);
     document.getElementById("btnShoppingList").className += " active";
     document.getElementById("btnShoppingList").style.width = "40%";
-    return cleanContent()
+    cleanContent();
+    showElement("shoppingList");
+    return getShoppingList()
       .then(() => {
-        showElement("shoppingList");
-        return getShoppingList();
+        return getQuery("/ingredient")
       })
-      .then(() => {
-        return getAllIngredients();
+      .then((data) => {
+
       });
   }
 
@@ -159,10 +160,8 @@
     hideElements(["shoppingList", "ingredients"]);
     document.getElementById("btnRecipes").className += " active";
     document.getElementById("btnRecipes").style.width = "40%";
-    return cleanContent()
-      .then(() => {
-        showElement("recipes");
-      });
+    cleanContent();
+    showElement("recipes");
   }
 
   function showIngredients() {
@@ -170,12 +169,13 @@
     hideElements(["shoppingList", "recipes"]);
     document.getElementById("btnIngredients").className += " active";
     document.getElementById("btnIngredients").style.width = "40%";
-    return cleanContent()
+    cleanContent();
+    showElement("ingredients");
+    return getAllStores()
       .then(() => {
-        showElement("ingredients");
-        return getAllStores();
-      }).then(() => {
         return getAllGroups();
+      }).then(() => {
+        return ingredient();
       });
   }
 
@@ -188,14 +188,9 @@
   }
 
   function hideElements(aId) {
-    if (Array.isArray(aId)) {
-      aId.forEach((sId) => {
-        document.getElementById(sId).style.display = "none";
-      });
-    }
-    else {
-      document.getElementById(aId).style.display = "none";
-    }
+    aId.forEach((sId) => {
+      document.getElementById(sId).style.display = "none";
+    });
   }
 
   function showElement(sId) {
@@ -203,21 +198,17 @@
   }
 
   function cleanContent() {
-    return Promise.resolve().then(() => {
-      const oContent = document.getElementById("content");
-      while (oContent.firstChild) {
-        oContent.removeChild(oContent.firstChild);
-      }
-    });
+    const oContent = document.getElementById("content");
+    while (oContent.firstChild) {
+      oContent.removeChild(oContent.firstChild);
+    }
   }
 
   function cleanOptions() {
-    return Promise.resolve().then(() => {
-      const oIngredients = document.getElementById("dl_ingredients");
-      while (oIngredients.children.length > 0) {
-        oIngredients.children[0].remove();
-      }
-    });
+    const oIngredients = document.getElementById("dl_ingredients");
+    while (oIngredients.children.length > 0) {
+      oIngredients.children[0].remove();
+    }
   }
 
   function deleteData(sUrl, sData) {
@@ -300,8 +291,8 @@
   }
 
   function getAllIngredients() {
-    return cleanOptions()
-      .then(() => { return getQuery("/ingredient") })
+    cleanOptions();
+    return getQuery("/ingredient")
       .then((ingredients) => {
         const oIngredients = document.getElementById("dl_ingredients");
         ingredients.forEach((i) => {
@@ -375,8 +366,8 @@
   }
 
   function getShoppingList() {
-    return cleanContent()
-      .then(() => { return getQuery("/shopping_list"); })
+    cleanContent();
+    return getQuery("/shopping_list")
       .then((shoppingList) => { return displayShoppingList(shoppingList); })
   }
 
@@ -384,16 +375,16 @@
     const oIngredient = document.getElementById("newIngredient");
     const sInput = oIngredient.value;
 
-    return cleanContent()
-      .then(() => { return putData("ingredient", sInput); })
+    cleanContent();
+    return putData("ingredient", sInput)
       .then((shoppingList) => { displayShoppingList(shoppingList); })
       .then(() => { return getAllIngredients(); });
   }
 
   function removeIngredient(sIngredient) {
     const iPosition = document.documentElement.scrollTop || document.body.scrollTop;
-    return cleanContent()
-      .then(() => { return deleteData("ingredient", sIngredient); })
+    cleanContent();
+    return deleteData("ingredient", sIngredient)
       .then((shoppingList) => { displayShoppingList(shoppingList); })
       .then(() => {
         return getAllIngredients();
