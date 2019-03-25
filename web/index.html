@@ -15,7 +15,8 @@
   body,
   .delete,
   .input,
-  button {
+  button,
+  select {
     font-size: 1.4rem;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   }
@@ -39,9 +40,26 @@
     border-radius: 0.5rem;
   }
 
-  .content li,
+  .content li {
+    width: 100%;
+  }
+
+  .content li span {
+    max-width: 36%;
+    display: inline-block;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+  }
+
   .input {
     width: 14rem;
+  }
+
+  .content li,
+  .input,
+  button {
+    height: 2rem;
   }
 
   .content h1 {
@@ -58,7 +76,14 @@
   .content li {
     margin-top: 0.5rem;
     color: black;
+  }
+
+  #c_shoppingList li {
     cursor: move;
+  }
+
+  #c_ingredients li {
+    width: 26rem;
   }
 
   .content li:nth-child(even) {
@@ -69,9 +94,18 @@
     background-color: var(--color-2);
   }
 
+  select {
+    float: right;
+    margin-right: 0.6rem;
+  }
+
+  select,
+  .delete {
+    margin-left: 1rem;
+  }
+
   .delete {
     color: #A60000;
-    margin-left: 1rem;
     background: transparent;
     border: 0rem;
   }
@@ -119,7 +153,6 @@
     <button id="btnIngredients" class="tablinks" onclick="showIngredients()" accesskey="z">Zutaten</button>
   </nav>
 
-  <!-- Used by both ShopplingList and Ingredients -->
   <section id="shoppingList">
     <section class="control" id="control">
       <input class="input" type="text" id="newIngredient" list="dl_ingredients" />
@@ -162,33 +195,51 @@
 
   function showIngredients() {
     deactivateAllTabs();
-    hideElements(["c_shoppingList", "c_recipes"]);
+    hideElements(["c_shoppingList", "c_recipes", "shoppingList"]);
     document.getElementById("btnIngredients").className += " active";
     document.getElementById("btnIngredients").style.width = "40%";
     cleanContent("c_ingredients");
-    showElement(["c_ingredients", "shoppingList"]);
+    showElement(["c_ingredients"]);
+    displayIngredients();
+  }
 
+  function displayIngredients() {
     const oContent = document.getElementById("c_ingredients");
     let oNewContent = [];
 
     return getAllStores()
-      .then(() => {
+      .then((stores) => {
         return getAllGroups();
       }).then(() => {
         return getQuery("/ingredient")
       })
       .then((ingredients) => {
-
-        let oList = document.createElement("ul");
+        const oList = document.createElement("ul");
 
         ingredients.forEach((ingredient) => {
-          let oIngredient = document.createElement("li");
+          const oIngredient = document.createElement("li");
 
-          let oName = document.createElement("span");
+          //name
+          const oName = document.createElement("span");
+          oName.setAttribute("id", `name_${ingredient.name}`);
           oName.innerText = ingredient.name;
-
           oIngredient.appendChild(oName);
 
+          //group
+          const oGroup = document.createElement("select");
+          oGroup.setAttribute("id", `group_${ingredient.name}`);
+          addOptions(aGroups, oGroup);
+          oGroup.value = aGroups.indexOf(ingredient.group);
+          oGroup.addEventListener('change', handleChange, false);
+          oIngredient.appendChild(oGroup);
+
+          //store
+          const oStore = document.createElement("select");
+          oStore.setAttribute("id", `store_${ingredient.name}`);
+          addOptions(aStores, oStore);
+          oStore.value = aStores.indexOf(ingredient.store);
+          oStore.addEventListener('change', handleChange, false);
+          oIngredient.appendChild(oStore);
 
           oList.appendChild(oIngredient);
         });
@@ -209,6 +260,22 @@
           oContent.appendChild(oNewContent);
         }
       });
+  }
+
+  function handleChange(e) {
+    const sIngredient = e.target.id.substring(e.target.id.indexOf('_') + 1);
+    const iGroup = document.getElementById(`group_${sIngredient}`).selectedIndex;
+    const iStore = document.getElementById(`store_${sIngredient}`).selectedIndex;
+    putData("ingredient", [sIngredient, iGroup, iStore]);
+  }
+
+  function addOptions(aArr, oSelect) {
+    aArr.forEach((sOption, i) => {
+      const oOption = document.createElement('option');
+      oOption.value = i;
+      oOption.innerHTML = sOption;
+      oSelect.appendChild(oOption);
+    });
   }
 
   function deactivateAllTabs() {
@@ -264,20 +331,25 @@
     });
   }
 
-  function putData(sUrl, sData) {
+  function putData(sUrl, aData) {
     return new Promise((resolve, reject) => {
       const xmlHttp = new XMLHttpRequest();
       xmlHttp.onreadystatechange = () => {
         if (xmlHttp.readyState == 4) {
           if (xmlHttp.status == 200) {
-            resolve(JSON.parse(xmlHttp.response));
+            if (xmlHttp.response) {
+              resolve(JSON.parse(xmlHttp.response));
+            }
+            else {
+              resolve();
+            }
           }
           else {
             reject(xmlHttp.responseText);
           }
         }
       }
-      xmlHttp.open("PUT", `${sUrl}/${sData}`, true);
+      xmlHttp.open("PUT", `${sUrl}/${aData.join('/')}`, true);
       xmlHttp.setRequestHeader("Content-Type", "application/json");
       xmlHttp.send(null);
     });
@@ -410,7 +482,7 @@
     const sInput = oIngredient.value;
 
     cleanContent("c_shoppingList");
-    return putData("ingredient", sInput)
+    return putData("ingredient", [sInput])
       .then((shoppingList) => { displayShoppingList(shoppingList); })
       .then(() => { return getAllIngredients(); });
   }

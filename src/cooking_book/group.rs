@@ -34,10 +34,10 @@ impl Group {
         let mut is_first: bool = true;
         for group in Group::get_group_iterator() {
             if is_first {
-                json.push_str(&format!("\"{:?}\"", group));
+                json.push_str(&format!("\"{}\"", group));
                 is_first = false;
             } else {
-                json.push_str(&format!(", \"{:?}\"", group));
+                json.push_str(&format!(", \"{}\"", group));
             }
         }
         json.push_str("]}");

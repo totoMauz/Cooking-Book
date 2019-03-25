@@ -1,4 +1,5 @@
 use self::Store::*;
+use std::fmt;
 use std::slice::Iter;
 
 /// The available stores for shopping.
@@ -23,10 +24,10 @@ impl Store {
         let mut is_first: bool = true;
         for store in Store::get_store_iterator() {
             if is_first {
-                json.push_str(&format!("\"{:?}\"", store));
+                json.push_str(&format!("\"{}\"", store));
                 is_first = false;
             } else {
-                json.push_str(&format!(", \"{:?}\"", store));
+                json.push_str(&format!(", \"{}\"", store));
             }
         }
         json.push_str("]}");
@@ -44,6 +45,17 @@ impl Store {
             1 => Store::DM,
             2 => Store::Denz,
             _ => Store::Any,
+        }
+    }
+}
+
+impl fmt::Display for Store {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match *self {
+            Store::Rewe => write!(f, "Rewe"),
+            Store::DM => write!(f, "DM"),
+            Store::Denz => write!(f, "Denz"),
+            Store::Any => write!(f, "Überall"),
         }
     }
 }

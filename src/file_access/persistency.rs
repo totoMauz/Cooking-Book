@@ -142,7 +142,7 @@ pub fn load_ingredients() -> HashMap<String, Ingredient> {
 /// #Arguments
 ///
 /// * `all_ingredients` The ingredients to write
-pub fn write_all_ingredients(all_ingredients: &Vec<Ingredient>) -> Result<(), String> {
+pub fn write_all_ingredients(all_ingredients: &HashMap<String, Ingredient>) -> Result<(), String> {
     let file = OpenOptions::new()
         .write(true)
         .truncate(true)
@@ -150,7 +150,7 @@ pub fn write_all_ingredients(all_ingredients: &Vec<Ingredient>) -> Result<(), St
 
     if file.is_ok() {
         let mut file = file.unwrap();
-        for ingredient in all_ingredients {
+        for (_k, ingredient) in all_ingredients {
             write_ingredient(&ingredient, &mut file).unwrap_or_else(|e| eprintln!("{}", e));
         }
         return Ok(());

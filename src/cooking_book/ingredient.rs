@@ -44,6 +44,24 @@ impl Ingredient {
         }
     }
 
+    /// Change the assigned group
+    /// 
+    /// #Arguments
+    /// 
+    /// * `group` the encoded group
+    pub fn set_group(&mut self, group: usize) {
+        self.group = Group::lookup_group_number(group);
+    }    
+    
+    /// Change the assigned store
+    /// 
+    /// #Arguments
+    /// 
+    /// * `store` the encoded store
+    pub fn set_store(&mut self, store: usize) {
+        self.preferred_store = Store::lookup_store_number(store);
+    }
+
     /// Create a new ingredient with only a name. Store and Group will fallback to their defaults.
     ///
     /// #Arguments
@@ -115,7 +133,7 @@ impl Ingredient {
         json.push_str("\", ");
 
         json.push_str("\"store\": \"");
-        json.push_str(&format!("{:?}", &self.preferred_store));
+        json.push_str(&format!("{}", &self.preferred_store));
         json.push_str("\"");
 
         json.push('}');
@@ -179,7 +197,7 @@ mod tests {
         };
         assert_eq!(
             ingredient.to_json(),
-            "{\"name\": \"Gurke\", \"group\": \"Gemüse\", \"store\": \"Any\"}"
+            "{\"name\": \"Gurke\", \"group\": \"Gemüse\", \"store\": \"Überall\"}"
         );
     }
 
