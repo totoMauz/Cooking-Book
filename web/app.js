@@ -129,7 +129,7 @@ function showElement(aId) {
 }
 
 function cleanContent(sId) {
-    if (!isOffline) {
+    if (!isOffline()) {
         const oContent = document.getElementById(sId);
         while (oContent.firstChild) {
             oContent.removeChild(oContent.firstChild);
@@ -257,7 +257,9 @@ function displayShoppingList(shoppingList) {
                     oButton.className = "delete";
                     oButton.innerText = 'X';
 
-                    oButton.addEventListener('click', () => { removeIngredient(item.name) }, false);
+                    oButton.addEventListener('click', () => {
+                        removeIngredient(item.name)
+                    }, false);
                     oItem.appendChild(oButton);
                 });
             });
@@ -303,7 +305,7 @@ function addIngredient() {
 }
 
 function removeIngredient(sIngredient) {
-    if(isOffline()) {
+    if (isOffline()) {
         document.getElementById(`li_${sIngredient}`).outerHTML = "";
     }
 
