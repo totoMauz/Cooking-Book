@@ -1,0 +1,140 @@
+:root {
+    --color-1: #5AA8AD;
+    --color-2: #6492A0;
+
+    --color-bg-1     : #959b9c;
+    --color-font-bg-1: #202020;
+
+    --color-bg-2     : #F4F3F5;
+    --color-font-bg-2: #202020;
+}
+
+body,
+.delete,
+.input,
+button,
+select {
+    font-size  : 1.4rem;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.header {
+    width           : 100%;
+    display         : flex;
+    background-color: var(--color-bg-1);
+}
+
+body {
+    color           : var(--color-font-bg-1);
+    background-color: var(--color-bg-1);
+}
+
+.content li,
+.input,
+button {
+    color           : var(--color-font-bg-2);
+    background-color: var(--color-bg-2);
+    border-radius   : 0.4rem;
+}
+
+.header,
+.tablinks {
+    border-top-left-radius : 0rem;
+    border-top-right-radius: 0rem;
+}
+
+.content li {
+    width: 100%;
+}
+
+.content li span {
+    max-width    : 36%;
+    display      : inline-block;
+    text-overflow: ellipsis;
+    white-space  : nowrap;
+    overflow     : hidden;
+}
+
+.input {
+    width: 14rem;
+}
+
+.content li,
+.input,
+button {
+    height: 2rem;
+}
+
+.content h1 {
+    margin-top   : 1rem;
+    margin-bottom: 0rem;
+}
+
+.content ul {
+    margin-top     : 0rem;
+    padding-left   : 0rem;
+    list-style-type: none;
+}
+
+.content li {
+    margin-top: 0.5rem;
+    color     : black;
+}
+
+#c_shoppingList li {
+    cursor: move;
+}
+
+#c_ingredients li {
+    width: 26rem;
+}
+
+.content li:nth-child(even) {
+    background-color: var(--color-1);
+}
+
+.content li:nth-child(odd) {
+    background-color: var(--color-2);
+}
+
+select {
+    float       : right;
+    margin-right: 0.6rem;
+}
+
+select,
+.delete {
+    margin-left: 1rem;
+}
+
+.delete {
+    color     : #A60000;
+    background: transparent;
+    border    : 0rem;
+}
+
+.control {
+    margin-bottom: 4rem;
+    display      : inline-flex;
+}
+
+.header {
+    overflow     : hidden;
+    margin-bottom: 4rem;
+}
+
+.header button {
+    float           : left;
+    border          : none;
+    outline         : none;
+    cursor          : pointer;
+    transition      : 0.3s;
+}
+
+.header button:hover {
+    background-color: var(--color-2);
+}
+
+.header button.active {
+    background-color: var(--color-1);
+}
