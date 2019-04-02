@@ -1,4 +1,3 @@
-
 let aGroups;
 let aStores;
 
@@ -39,7 +38,7 @@ function displayIngredients() {
     let oNewContent = [];
 
     return getAllStores()
-        .then((stores) => {
+        .then(() => {
             return getAllGroups();
         }).then(() => {
             return getQuery("/ingredient")
@@ -130,9 +129,11 @@ function showElement(aId) {
 }
 
 function cleanContent(sId) {
-    const oContent = document.getElementById(sId);
-    while (oContent.firstChild) {
-        oContent.removeChild(oContent.firstChild);
+    if (!isOffline) {
+        const oContent = document.getElementById(sId);
+        while (oContent.firstChild) {
+            oContent.removeChild(oContent.firstChild);
+        }
     }
 }
 
@@ -143,7 +144,15 @@ function cleanOptions() {
     }
 }
 
-function deleteData(sUrl, sData) {
+function isOffline() {
+    return document.getElementById("cbOffline").checked;
+}
+
+function ajax(sMethod, sUrl) {
+    if (isOffline()) {
+        return Promise.resolve([]);
+    }
+
     return new Promise((resolve, reject) => {
         const xmlHttp = new XMLHttpRequest();
         xmlHttp.onreadystatechange = () => {
@@ -156,53 +165,22 @@ function deleteData(sUrl, sData) {
                 }
             }
         }
-        xmlHttp.open("DELETE", `${sUrl}/${sData}`, true);
+        xmlHttp.open(sMethod, sUrl, true);
         xmlHttp.setRequestHeader("Content-Type", "application/json");
         xmlHttp.send(null);
     });
+}
+
+function deleteData(sUrl, sData) {
+    return ajax("DELETE", `${sUrl}/${sData}`);
 }
 
 function putData(sUrl, aData) {
-    return new Promise((resolve, reject) => {
-        const xmlHttp = new XMLHttpRequest();
-        xmlHttp.onreadystatechange = () => {
-            if (xmlHttp.readyState == 4) {
-                if (xmlHttp.status == 200) {
-                    if (xmlHttp.response) {
-                        resolve(JSON.parse(xmlHttp.response));
-                    }
-                    else {
-                        resolve();
-                    }
-                }
-                else {
-                    reject(xmlHttp.responseText);
-                }
-            }
-        }
-        xmlHttp.open("PUT", `${sUrl}/${aData.join('/')}`, true);
-        xmlHttp.setRequestHeader("Content-Type", "application/json");
-        xmlHttp.send(null);
-    });
+    return ajax("PUT", `${sUrl}/${aData.join('/')}`);
 }
 
 function getQuery(sUrl) {
-    return new Promise((resolve, reject) => {
-        const xmlHttp = new XMLHttpRequest();
-        xmlHttp.onreadystatechange = () => {
-            if (xmlHttp.readyState == 4) {
-                if (xmlHttp.status == 200) {
-                    resolve(JSON.parse(xmlHttp.response));
-                }
-                else {
-                    reject(xmlHttp.responseText);
-                }
-            }
-        }
-        xmlHttp.open("GET", sUrl, true);
-        xmlHttp.setRequestHeader("Content-Type", "application/json");
-        xmlHttp.send(null);
-    });
+    return ajax("GET", sUrl);
 }
 
 function getAllStores() {
@@ -305,7 +283,9 @@ function displayShoppingList(shoppingList) {
 function getShoppingList() {
     cleanContent("c_shoppingList");
     return getQuery("/shopping_list")
-        .then((shoppingList) => { return displayShoppingList(shoppingList); })
+        .then((shoppingList) => {
+            return displayShoppingList(shoppingList);
+        });
 }
 
 function addIngredient() {
@@ -314,15 +294,25 @@ function addIngredient() {
 
     cleanContent("c_shoppingList");
     return putData("ingredient", [sInput])
-        .then((shoppingList) => { displayShoppingList(shoppingList); })
-        .then(() => { return getAllIngredients(); });
+        .then((shoppingList) => {
+            displayShoppingList(shoppingList);
+        })
+        .then(() => {
+            return getAllIngredients();
+        });
 }
 
 function removeIngredient(sIngredient) {
+    if(isOffline()) {
+        document.getElementById(`li_${sIngredient}`).outerHTML = "";
+    }
+
     const iPosition = document.documentElement.scrollTop || document.body.scrollTop;
     cleanContent("c_shoppingList");
     return deleteData("ingredient", sIngredient)
-        .then((shoppingList) => { displayShoppingList(shoppingList); })
+        .then((shoppingList) => {
+            displayShoppingList(shoppingList);
+        })
         .then(() => {
             return getAllIngredients();
         }).finally(() => {
