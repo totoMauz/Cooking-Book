@@ -1,11 +1,23 @@
 let aGroups;
 let aStores;
 
-function showShoppingList() {
+function activateButton(sId) {
     deactivateAllTabs();
+    document.getElementById(sId).className += " active";
+    document.getElementById(sId).style.width = "40%";
+}
+
+function deactivateAllTabs() {
+    const aTabs = document.getElementsByClassName("tablinks");
+    for (let oTab of aTabs) {
+        oTab.className = oTab.className.replace(" active", "");
+        oTab.style.width = "30%";
+    };
+}
+
+function showShoppingList() {
     hideElements(["c_recipes", "c_ingredients"]);
-    document.getElementById("btnShoppingList").className += " active";
-    document.getElementById("btnShoppingList").style.width = "40%";
+    activateButton("btnShoppingList");
     cleanContent("c_shoppingList");
     showElement(["c_shoppingList", "shoppingList"]);
     return getShoppingList()
@@ -15,19 +27,15 @@ function showShoppingList() {
 }
 
 function showRecipes() {
-    deactivateAllTabs();
     hideElements(["c_shoppingList", "c_ingredients", "shoppingList"]);
-    document.getElementById("btnRecipes").className += " active";
-    document.getElementById("btnRecipes").style.width = "40%";
+    activateButton("btnRecipes");
     cleanContent("c_recipes");
     showElement(["c_recipes"]);
 }
 
 function showIngredients() {
-    deactivateAllTabs();
     hideElements(["c_shoppingList", "c_recipes", "shoppingList"]);
-    document.getElementById("btnIngredients").className += " active";
-    document.getElementById("btnIngredients").style.width = "40%";
+    activateButton("btnIngredients");
     cleanContent("c_ingredients");
     showElement(["c_ingredients"]);
     displayIngredients();
@@ -106,14 +114,6 @@ function addOptions(aArr, oSelect) {
         oOption.innerHTML = sOption;
         oSelect.appendChild(oOption);
     });
-}
-
-function deactivateAllTabs() {
-    const aTabs = document.getElementsByClassName("tablinks");
-    for (let oTab of aTabs) {
-        oTab.className = oTab.className.replace(" active", "");
-        oTab.style.width = "30%";
-    };
 }
 
 function hideElements(aId) {
@@ -219,6 +219,7 @@ function getAllIngredients() {
 }
 
 function displayShoppingList(shoppingList) {
+    cleanContent("c_shoppingList");
     const oContent = document.getElementById("c_shoppingList");
     let oNewContent = [];
     return Promise.resolve().then(() => {
@@ -283,7 +284,6 @@ function displayShoppingList(shoppingList) {
 }
 
 function getShoppingList() {
-    cleanContent("c_shoppingList");
     return getQuery("/shopping_list")
         .then((shoppingList) => {
             return displayShoppingList(shoppingList);
@@ -294,7 +294,6 @@ function addIngredient() {
     const oIngredient = document.getElementById("newIngredient");
     const sInput = oIngredient.value;
 
-    cleanContent("c_shoppingList");
     return putData("ingredient", [sInput])
         .then((shoppingList) => {
             displayShoppingList(shoppingList);
@@ -310,7 +309,6 @@ function removeIngredient(sIngredient) {
     }
 
     const iPosition = document.documentElement.scrollTop || document.body.scrollTop;
-    cleanContent("c_shoppingList");
     return deleteData("ingredient", sIngredient)
         .then((shoppingList) => {
             displayShoppingList(shoppingList);
