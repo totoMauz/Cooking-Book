@@ -5,7 +5,6 @@ extern crate rocket;
 extern crate rocket_contrib;
 
 use rocket_contrib::serve::StaticFiles;
-use std::io;
 
 mod cooking_book {
     pub mod group;
@@ -129,17 +128,4 @@ fn main() {
         )
         .mount("/", StaticFiles::from("web"))
         .launch();
-}
-
-/// Read from stdin
-///
-/// # Panics
-///
-/// The `read_from_stdin` function will panic if it cannot read from stdin
-pub fn read_from_stdin() -> String {
-    let mut input = String::new();
-    io::stdin()
-        .read_line(&mut input)
-        .expect("Couldn't read from stdin");
-    return input.trim().to_string();
 }
